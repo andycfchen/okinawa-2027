@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>2027 沖繩行程</title>
+<style>body{margin:0;font-size:14px}.toprow{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.themebtn{font:inherit;font-size:13px;padding:5px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.themebtn:focus-visible{outline:2px solid var(--taxi);outline-offset:2px}
+
+/* 營業時間核對標記：ok＝已查到且涵蓋行程、warn＝來源矛盾或需再確認、bad＝公休或對不上 */
+.hrs{font-size:13.5px;line-height:1.55;margin-top:6px;padding:5px 10px;border-radius:8px;border-left:3px solid var(--teal);background:var(--tint);color:var(--ink);overflow-wrap:anywhere}
+.hrs b{font-weight:700;margin-right:6px}
+.hrs.warn{border-left-color:var(--warn);background:var(--warnbg)}
+.hrs.warn b{color:var(--warn)}
+.hrs.bad{border-left-color:#B3261E;background:#FCE8E6}
+.hrs.bad b{color:#B3261E}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .hrs.bad{background:#2E1614;border-left-color:#F28B82}:root:not([data-theme="light"]) .hrs.bad b{color:#F28B82}}
+:root[data-theme="dark"] .hrs.bad{background:#2E1614;border-left-color:#F28B82}
+:root[data-theme="dark"] .hrs.bad b{color:#F28B82}
+.hrsnote{font-size:13.5px;margin:10px 0 0;padding:8px 12px;border-radius:8px;background:var(--warnbg);color:var(--warn);border:1px solid var(--warn)}
+</style>
+<link rel="stylesheet" href="tools.css?v=1">
+</head>
+<body>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@700;900&display=swap">
+<style>
+/* 版面：頂部路線帶＋黏頂日期導覽＋每天一張時間軸卡片，最後是備選店單與待確認清單。配色取自沖繩海水青綠。 */
+:root{
+  --bg:#F4F6F8; --surface:#FFFFFF; --ink:#1C2430; --mute:#5B6675; --line:#DDE2E8; --head:#1F2A37; --num:#9CC2EA;
+  --mv:#7A4FB5; --taxi:#0E7490; --teal:#0E7490; --gold:#8A96A6; --tint:#EBEFF4; --warn:#B4540A; --warnbg:#FDF0E1;
+  color-scheme:light;
+  --f-display:'Noto Serif TC','Songti TC','PMingLiU',serif;
+  --f-body:'Noto Sans TC','PingFang TC','Microsoft JhengHei',system-ui,sans-serif;
+  --f-mono:'DM Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11171E; --surface:#1A222C; --ink:#E6EAF0; --mute:#9AA6B5; --line:#2B3644; --head:#243242; --num:#9CC2EA;
+  --mv:#C4A5F0; --taxi:#5EC4D4; --teal:#5EC4D4; --gold:#8493A5; --tint:#222C38; --warn:#F3A35C; --warnbg:#2B2012; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11171E; --surface:#1A222C; --ink:#E6EAF0; --mute:#9AA6B5; --line:#2B3644; --head:#243242; --num:#9CC2EA;
+  --mv:#C4A5F0; --taxi:#5EC4D4; --teal:#5EC4D4; --gold:#8493A5; --tint:#222C38; --warn:#F3A35C; --warnbg:#2B2012; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);line-height:1.65;font-size:15px}
+.wrap{max-width:880px;margin-inline:auto;padding-inline:16px;padding-block:20px 56px}
+a{color:var(--teal);text-underline-offset:3px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
+.hero{display:grid;gap:14px;padding-block:8px 18px}
+.hero .eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--taxi)}
+.hero h1{font-size:clamp(34px,8vw,56px);line-height:1.1;font-weight:900}
+.hero p{margin:0;color:var(--mute);max-width:60ch}
+.route{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 12px 6px;overflow-x:auto}
+.route svg{display:block;width:100%;min-width:560px;height:auto}
+.route text{font-family:var(--f-body);fill:var(--ink)}
+.route .sub{font-family:var(--f-mono);fill:var(--mute);font-size:11px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{font-size:13px;padding:5px 12px;border-radius:999px;background:var(--tint);color:var(--ink)}
+.chip b{font-family:var(--f-mono);font-weight:500;color:var(--teal);margin-right:6px}
+nav.days{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;gap:6px;overflow-x:auto;padding-block:10px;margin-block:10px 4px;border-bottom:1px solid var(--line)}
+nav.days a{flex:0 0 auto;text-decoration:none;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:6px 12px;text-align:center;font-size:13px;line-height:1.3}
+nav.days a b{display:block;font-family:var(--f-mono);font-weight:500;font-size:12px;color:var(--taxi)}
+nav.days a:focus-visible,nav.days a:hover{outline:2px solid var(--teal)}
+ol.tl li.mv{background:color-mix(in srgb,var(--mv) 9%,transparent)}
+ol.tl li.mv .t,ol.tl li.mv strong{color:var(--mv)}
+ol.tl li.mv .dot{background:var(--mv)}
+ol.tl li.mv .n{color:var(--mute)}
+table.res .tag{white-space:nowrap}
+table.res td:first-child{white-space:nowrap;width:1%}
+@media (max-width:640px){
+ table.res{min-width:0}
+ table.res thead{display:none}
+ table.res tbody,table.res tr,table.res td{display:block}
+ table.res tr{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:0 0 10px;background:var(--surface)}
+ table.res td{border:0;padding:3px 0;width:auto}
+ table.res td[data-l]:before{content:attr(data-l);display:block;font-size:12px;color:var(--mute);line-height:1.4;margin-top:4px}
+}
+nav.days a.cur{background:var(--teal);border-color:var(--teal);color:var(--bg);box-shadow:0 0 0 3px color-mix(in srgb,var(--teal) 35%,transparent)}
+nav.days a.cur b{color:inherit}
+ol.tl li.cur{background:var(--tint);box-shadow:inset 3px 0 0 var(--teal);border-radius:8px;margin-inline:-12px;padding-inline:12px;transition:background .2s}
+ol.tl li.cur .dot{box-shadow:0 0 0 4px color-mix(in srgb,var(--teal) 40%,transparent),0 0 12px var(--teal)}
+section.day{margin-top:30px;scroll-margin-top:84px}
+.dayhead{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;background:var(--head);color:#fff;border-radius:16px 16px 0 0;padding:14px 18px;overflow:hidden}
+.dayhead .no{font-family:var(--f-display);font-weight:900;font-size:46px;line-height:1;color:var(--num)}
+.dayhead .meta{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;opacity:.9}
+.dayhead h2{font-size:clamp(19px,4.5vw,25px);line-height:1.25;margin-top:2px}
+.dayhead svg{width:84px;height:56px;opacity:.9}
+.card{background:var(--surface);border:1px solid var(--line);border-top:0;border-radius:0 0 16px 16px;padding:6px 18px 8px}
+.stay{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--mute);padding-block:10px;border-bottom:1px dashed var(--line)}
+.stay span{min-width:0;overflow-wrap:anywhere}
+ol.tl{list-style:none;margin:0;padding:0}
+ol.tl li{display:grid;grid-template-columns:92px 14px 1fr;gap:0 10px;padding-block:11px;border-bottom:1px solid var(--line)}
+ol.tl li:last-child{border-bottom:0}
+.t{font-family:var(--f-mono);font-size:12.5px;color:var(--mute);padding-top:3px;font-variant-numeric:tabular-nums;line-height:1.5}
+.dot{width:10px;height:10px;border-radius:50%;margin-top:7px;background:var(--teal)}
+.dot.eat{background:var(--gold)} .dot.go{background:var(--taxi)} .dot.rest{background:var(--mute)}
+.what{min-width:0}
+.what strong{font-weight:700;display:block;overflow-wrap:anywhere}
+.what .n{color:var(--mute);font-size:13.5px;overflow-wrap:anywhere}
+.what .alt{font-size:13.5px;margin-top:2px;overflow-wrap:anywhere}
+.tag{display:inline-block;font-size:11.5px;padding:1px 8px;border-radius:999px;background:var(--tint);color:var(--ink);margin-right:4px;vertical-align:1px}
+.tag.must{background:var(--taxi);color:var(--surface)}
+.n.price{color:var(--teal);font-weight:600}
+.tag.nor{background:transparent;color:var(--teal);border:1px solid var(--teal)}
+.tag.warn{background:var(--warnbg);color:var(--warn);border:1px solid var(--warn)}
+.note{margin:6px 0 10px;padding:9px 12px;border-radius:10px;background:var(--tint);font-size:13.5px;color:var(--ink)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin-top:6px}
+.cols div{background:var(--tint);border-radius:10px;padding:10px 12px;font-size:13.5px}
+.cols h4{margin:0 0 4px;font-family:var(--f-display);font-size:14px}
+.cols ul{margin:0;padding-left:18px}
+h2.sec{font-size:26px;margin-top:46px}
+p.lead{color:var(--mute);margin:6px 0 14px;max-width:62ch}
+.filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.filters button{font:inherit;font-size:13px;padding:5px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.filters button[aria-pressed="true"]{background:var(--teal);border-color:var(--teal);color:var(--surface)}
+.filters button:focus-visible{outline:2px solid var(--taxi);outline-offset:2px}
+.tbl{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:14px}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:13.5px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.08em;color:var(--mute);font-weight:500;background:var(--tint)}
+tr:last-child td{border-bottom:0}
+details.issues{margin-top:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px 16px}
+details.issues summary{cursor:pointer;padding-block:10px;font-weight:700;font-family:var(--f-display)}
+details.issues ul{margin:0 0 12px;padding-left:18px;font-size:14px}
+details.issues li{margin-bottom:6px}
+footer{margin-top:40px;font-size:12.5px;color:var(--mute)}
+ol.routem{display:none;list-style:none;margin:0;padding:0;gap:6px}
+ol.routem li{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:14px}
+ol.routem b{font-family:var(--f-mono);font-weight:500;color:var(--taxi);margin-right:8px}
+@media (max-width:520px){
+  .route{display:none}ol.routem{display:grid}
+  ol.tl li{grid-template-columns:1fr;gap:2px}
+  .dot{display:none}
+  .t{padding-top:0;color:var(--taxi)}
+  .dayhead{grid-template-columns:auto 1fr}.dayhead svg{display:none}
+}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+.pic{display:block;width:100%;max-width:360px;aspect-ratio:3/2;object-fit:cover;border-radius:10px;margin-top:8px;background:var(--tint)}
+
+/* ---- 美化 ---- */
+body{font-size:16px;line-height:1.7}
+.wrap{max-width:940px}
+.herocard{position:relative;border-radius:24px;overflow:hidden;min-height:340px;display:flex;flex-direction:column;justify-content:space-between;gap:40px;padding:22px 24px 26px;color:#fff;background:linear-gradient(180deg,rgba(8,16,28,.35) 0%,rgba(8,16,28,.82) 100%),url('https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c9/Cape_Manzamo_3.JPG/960px-Cape_Manzamo_3.JPG') center 35%/cover;box-shadow:0 18px 50px rgba(8,16,28,.22)}
+.herocard .eyebrow{color:#CFE3F7;letter-spacing:.18em}
+.herocard h1{color:#fff;font-size:clamp(40px,9vw,68px);letter-spacing:.01em}
+.herocard p{color:rgba(255,255,255,.88);margin-top:10px;font-size:16px}
+.toplinks{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.toplinks a.themebtn{text-decoration:none;display:inline-block}
+.herocard .themebtn{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.4);color:#fff;backdrop-filter:blur(6px)}
+.herotext{display:grid;gap:4px}
+.chip{background:var(--surface);border:1px solid var(--line);font-size:13.5px;padding:6px 14px}
+nav.days{gap:8px;border-bottom:0}
+nav.days a{border-radius:12px;padding:8px 14px;box-shadow:0 2px 8px rgba(10,20,40,.05)}
+section.day{margin-top:48px}
+.dayhead{border-radius:22px 22px 0 0;padding:20px 24px}
+.dayhead.cover{min-height:170px;background-size:cover;background-position:center;align-items:end}
+.dayhead .no{font-size:64px}
+.dayhead h2{font-size:clamp(21px,4.6vw,30px)}
+.card{border-radius:0 0 22px 22px;padding:8px 24px 14px;box-shadow:0 14px 36px rgba(10,20,40,.08)}
+ol.tl li{padding-block:16px;grid-template-columns:104px 14px minmax(0,1fr)}
+.t{font-size:13px;color:var(--taxi);font-weight:500}
+.what strong{font-size:17px;line-height:1.5}
+.what .n{font-size:14.5px;margin-top:2px}
+.what.hasp{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:16px;align-items:start}
+.what .alt a{font-size:13.5px}
+.pic{margin:0;max-width:none;aspect-ratio:4/3;border-radius:16px;box-shadow:0 8px 22px rgba(10,20,40,.18)}
+.note{border-radius:14px;padding:11px 14px}
+.tbl{border-radius:18px;box-shadow:0 10px 28px rgba(10,20,40,.06)}
+@media (max-width:640px){
+  .what.hasp{grid-template-columns:minmax(0,1fr)}
+  .pic{aspect-ratio:16/10}
+  .herocard{min-height:300px;padding:18px}
+  .dayhead{padding:16px 18px}.card{padding-inline:16px}
+}
+
+.maps{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.maps:empty{display:none}
+.mapchip{display:inline-block;font-size:13px;line-height:1.5;padding:3px 11px;border-radius:999px;background:var(--tint);border:1px solid var(--line);color:var(--ink);text-decoration:none;overflow-wrap:anywhere}
+.mapchip:hover{border-color:var(--taxi)}
+.mapchip:focus-visible{outline:2px solid var(--taxi);outline-offset:2px}
+.mapchip.photo{background:transparent;color:var(--mute)}
+
+.picbox{display:grid;gap:10px;min-width:0}
+.xpic{margin:0}.xpic figcaption{font-size:12.5px;color:var(--mute);margin-top:4px}
+/* 手機：單欄時間軸（必須放在最後才不會被前面的設定蓋掉） */
+@media (max-width:640px){
+  ol.tl li{grid-template-columns:minmax(0,1fr);gap:2px;padding-block:14px}
+  ol.tl li .dot{display:none}
+  .t{padding-top:0}
+  .what.hasp{grid-template-columns:minmax(0,1fr)}
+}
+
+.bk{font-size:13.5px;line-height:1.6;margin-top:6px;padding:5px 10px;border-radius:8px;border:1px dashed var(--line);color:var(--ink)}
+.bk summary{cursor:pointer;font-weight:700;color:var(--taxi);list-style:none;display:flex;align-items:center;gap:6px;user-select:none}
+.bk summary::-webkit-details-marker{display:none}
+.bk summary::before{content:"▸";display:inline-block;transition:transform .15s}
+.bk[open] summary::before{transform:rotate(90deg)}
+.bk[open] summary{margin-bottom:2px}
+.altbox{margin:8px 0 0;padding:8px 12px}
+.altbox .lead{margin:8px 0}
+.bk .bki{margin:3px 0 0;padding-left:1.1em;text-indent:-1.1em;display:block}
+.bk .bki::before{content:"・";display:inline-block;width:1.1em;text-indent:0;text-align:center;color:var(--mute)}
+
+nav.logjump{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 14px}
+nav.logjump a{text-decoration:none;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:6px 12px;font-size:13px}
+nav.logjump a b{display:block;font-family:var(--f-mono);font-weight:500;font-size:12px;color:var(--taxi)}
+nav.logjump a:focus-visible,nav.logjump a:hover{outline:2px solid var(--teal)}
+.logday{margin:0 0 16px;padding:12px 14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;scroll-margin-top:130px}
+.logday h3{margin:0 0 6px;font-size:15px;font-family:var(--f-mono);color:var(--taxi)}
+.logday h3 span{font-family:inherit;color:var(--ink);font-weight:700}
+.logday ul{margin:0;padding-left:1.1em;font-size:14px;line-height:1.6}
+.logday li{margin:2px 0}
+.logday code{font-family:var(--f-mono);font-size:12px;color:var(--mute);margin-right:4px}
+.bkimg{margin:8px 0;border-radius:10px;overflow:hidden}
+.bkimg img{display:block;width:100%;height:auto;max-height:260px;object-fit:cover}
+.bkimg figcaption{font-size:12px;color:var(--mute);padding:4px 2px}
+.tix{font-size:13.5px;line-height:1.55;margin-top:6px;padding:5px 10px;border-radius:8px;background:var(--tint);color:var(--ink);overflow-wrap:anywhere}
+</style>
+
+<div class="wrap">
+<header class="hero">
+  <div class="herocard"><div class="toprow"><div class="eyebrow">Okinawa · Naha　2027/03/30 – 04/03</div><div class="toplinks"><button type="button" id="themebtn" class="themebtn" aria-label="切換淺色或深色">跟隨系統</button></div></div>
+  <div class="herotext"><h1>2027 沖繩行程</h1>
+  <p>早班機到那霸，第一天逛復原後的首里城、達摩寺和 PARCO CITY；中間三天跟 Klook 中文團把北部、中部、南部一次走完；最後一天拜波上宮、逛 AEON 來客夢，晚上飛回台北。四晚都住 OMO5 沖繩那霸。</p></div></div>
+  <div class="route" aria-label="路線圖">
+    <svg viewBox="0 0 640 150" role="img" aria-label="台北到那霸，三天往北部、中部、南部，再回台北的路線">
+      <path d="M50 96 C130 30 220 30 300 80" fill="none" stroke="var(--teal)" stroke-width="2.5" stroke-dasharray="6 6"/>
+      <path d="M300 80 C330 20 380 10 420 30" fill="none" stroke="var(--taxi)" stroke-width="2.5"/>
+      <path d="M300 80 C340 70 380 70 420 76" fill="none" stroke="var(--taxi)" stroke-width="2.5"/>
+      <path d="M300 80 C340 110 380 124 420 124" fill="none" stroke="var(--taxi)" stroke-width="2.5"/>
+      <path d="M300 80 C400 140 520 140 600 96" fill="none" stroke="var(--teal)" stroke-width="2.5" stroke-dasharray="6 6"/>
+      <circle cx="50" cy="96" r="9" fill="var(--teal)"/><circle cx="300" cy="80" r="10" fill="var(--gold)"/>
+      <circle cx="420" cy="30" r="6" fill="var(--taxi)"/><circle cx="420" cy="76" r="6" fill="var(--taxi)"/><circle cx="420" cy="124" r="6" fill="var(--taxi)"/><circle cx="600" cy="96" r="9" fill="var(--teal)"/>
+      <text x="50" y="126" text-anchor="middle" font-size="14" font-weight="700">台北</text><text class="sub" x="50" y="142" text-anchor="middle">03/30 06:45</text>
+      <text x="300" y="112" text-anchor="middle" font-size="14" font-weight="700">那霸</text><text class="sub" x="300" y="128" text-anchor="middle">OMO5 四晚</text>
+      <text x="432" y="34" font-size="13" font-weight="700">北部 03/31</text><text x="432" y="80" font-size="13" font-weight="700">中部 04/01</text><text x="432" y="128" font-size="13" font-weight="700">南部 04/02</text>
+      <text x="600" y="76" text-anchor="middle" font-size="14" font-weight="700">台北</text><text class="sub" x="600" y="60" text-anchor="middle">04/03 20:30</text>
+    </svg>
+  </div>
+  <ol class="routem" aria-label="路線">
+    <li><b>03/30</b>桃園 06:45 起飛，09:15 到那霸；首里城、達摩寺、PARCO CITY</li><li><b>03/31</b>北部一日團：萬座毛、古宇利、美麗海水族館、美國村</li><li><b>04/01</b>中部一日團：嘉手納、植物樂園、BANTA CAFE、殘波岬、來客夢</li><li><b>04/02</b>南部一日團：知念岬、新原海灘、玉泉洞、系滿、瀨長島</li><li><b>04/03</b>波上宮、AEON 來客夢，19:55 那霸起飛、20:30 到桃園</li></ol>
+  <div class="chips">
+    <span class="chip"><b>去</b>BR112 06:45 → 09:15</span>
+    <span class="chip"><b>回</b>BR185 19:55 → 20:30</span>
+    <span class="chip"><b>住</b>OMO5 沖繩那霸 by 星野集團　03/30–04/03（含早餐）</span>
+    <span class="chip"><b>團</b>Klook 沖繩 3 日遊　03/31–04/02</span>
+  </div>
+</header>
+
+<nav class="days" id="nav" aria-label="日期"></nav>
+<main id="days"></main>
+
+<h2 class="sec" id="book">重點預約清單</h2>
+<p class="lead">機票、飯店已訂；三日遊和首里城正殿還要訂。</p>
+<div class="tbl"><table><thead><tr><th>重要度</th><th>項目</th><th>日期／時段</th><th>預約建議</th><th>備註</th></tr></thead><tbody id="rows"></tbody></table></div>
+
+<h2 class="sec" id="alt">備選地點</h2>
+<details class="bk altbox"><summary>展開備選地點（3）</summary>
+<p class="lead">行程沒排、但離飯店近或可以替換的地方。</p>
+<div class="tbl"><table><thead><tr><th>地點</th><th>位置</th><th>營業時間</th><th>備註</th></tr></thead><tbody id="altrows"></tbody></table></div>
+</details>
+
+<h2 class="sec" id="note">出發前要注意</h2>
+<ul class="lead">
+<li><b>人數對不上：</b>機票是 5 人，飯店訂了 3 間雙床房、6 位大人。第 6 位是另外搭機，還是飯店要改人數，要確認。</li>
+<li><b>素食：</b>一位吃中式素食（機上餐已訂）。北部團贈送的飯糰不提供素食，要自備午餐；沖繩麵湯頭多用豬骨、柴魚，那霸市區也沒查到素食專門店，用餐前先問店家。</li>
+<li><b>首里城正殿：</b>2027-01-01 13:00 開賣 3 月入場的日期時段票，開賣就訂。</li>
+<li><b>三日遊：</b>5 人放同一筆訂單才會同車；每天集合時間、地點不一樣（08:20／08:10／08:30）。</li>
+<li><b>入境：</b>出發前填 Visit Japan Web。訂房、機票的訂位代號與密碼在原始信件裡，這頁不放。</li>
+</ul>
+
+<footer>資料來源：長榮航空電子機票行程、OMO5 沖繩那霸訂房確認信、Klook 活動頁（2026-11-15 讀取）。營業時間與交通為 2026-11-15 上網查的，多數是第三方網站（琉球新報、Rurubu、じゃらん、Hot Pepper、NAVITIME 等），標「估計，未查證」的是我依地圖粗估；出發前請再看一次官方公告。圖片來源：Wikimedia Commons。</footer>
+</div>
+
+<script>
+const D=[
+{no:1,date:'03/30',wd:'二',title:'台北 → 那霸　首里城＋達摩寺＋PARCO CITY',svg:'plane',stay:['✈ 長榮 BR112 06:45 – 09:15（那霸）','🏨 OMO5 沖繩那霸 by 星野集團　4 晚，含早餐，15:00 入住'],
+ note:'早班機：桃園第 2 航廈 04:45 前到。今天交通用單軌電車（ゆいレール）＋計程車；5 人搭計程車要分 2 台。首里そば賣完就收，所以一到首里先吃午餐，再拜達摩寺、走去首里城。',
+ items:[
+ ['04:45','桃園機場第 2 航廈報到','move','國際線建議起飛前 2 小時到；每人托運 1 件（機票寫 1PC）'],
+ ['06:45–09:15','BR112 起飛，台北 → 那霸','move','飛行約 1.5 小時；機上素食餐 1 份已確認'],
+ ['09:15–10:15','那霸機場入境、領行李','move','入境＋領行李先抓 1 小時（估計，未查證）。入境前先填好 Visit Japan Web'],
+ ['10:15–10:35','單軌電車　那霸機場站 → 縣廳前站','move','約 10–12 分，270 或 290 円（兩個來源不一，以站內票價為準）；可用 Suica 等交通 IC 卡'],
+ ['10:35–10:50','OMO5 沖繩那霸　寄放行李','rest','縣廳前站步行約 6 分（官網）。15:00 才能入住，先寄放行李（官網沒寫寄放規定，到櫃檯問）','https://hoshinoresorts.com/zh_tw/hotels/omo5okinawanaha/'],
+ ['10:50–11:25','前往首里','move','縣廳前站 → 首里站，單軌約 15–20 分（估計，未查證），出站步行約 5 分到首里そば'],
+ ['11:30–12:15','午餐　首里そば','eat','首里人氣沖繩麵，11:30 開門、賣完就收，要排隊。湯頭一般用豬骨、柴魚，素食者不能吃，先在附近另找'],
+ ['12:15–12:45','達摩寺（西來院）','go','臨濟宗寺院，暱稱「だるま寺」，本堂入口前有「なでだるま」（摸達摩祈求健康、合格、安產）。首里赤田町，首里站步行約 5 分，和首里そば同一區'],
+ ['12:45–13:00','步行到首里城','move','從赤田町走到首里城公園入口約 10–15 分（估計，未查證）'],
+ ['13:00–15:00','首里城公園（正殿復原後公開）','go','2019 年燒毀的正殿，2026-11-23 復原完工公開。正殿內部要預約日期時段，其他收費區不用預約。建議訂 13:30 前後的正殿時段'],
+ ['15:00–15:30','前往 PARCO CITY','move','首里城 → 浦添西海岸，計程車約 25–30 分（估計，未查證）；分 2 台'],
+ ['15:30–19:30','サンエー浦添西海岸 PARCO CITY','go','海邊大型商場：逛街、晚餐都在這裡。面西海岸，3 月底日落約 18:50（估計，未查證），可到海側看夕陽'],
+ ['19:30–20:00','回飯店辦入住','move','計程車約 20–25 分（估計，未查證）；或搭公車回縣廳前'],
+ ['晚上','OMO5 入住、休息','rest','明天 08:20 集合，早點睡']]},
+{no:2,date:'03/31',wd:'三',title:'三日遊 Day 1　北部：美麗海水族館・古宇利・萬座毛・美國村',svg:'wave',stay:['🚌 Klook 沖繩 3 日遊【北部＋中部＋南部】第 1 天','🏨 OMO5 沖繩那霸'],
+ note:'08:20 在 BLUE SEAL 久茂地店（縣廳前 RYUBO 百貨 1F）集合，08:30 出發。找拿 Easygo 旗子或穿 Easygo 背心的導遊，報預約姓名或預約號碼；遲到視同放棄、不退費。贈送的飯糰午餐不提供素食，素食者要自備午餐。',
+ items:[
+ ['07:00–07:45','飯店早餐','eat','訂房含早餐。早餐 07:00–10:00（第三方網站 newt.net，官網沒寫）'],
+ ['07:55–08:10','步行到集合點','move','飯店到縣廳前 RYUBO 百貨步行約 6–10 分（估計，未查證）'],
+ ['08:20','集合　BLUE SEAL 久茂地店（RYUBO 百貨 1F）','move','08:20 集合、08:30 出發'],
+ ['09:30–10:00','萬座毛','go','含門票。象鼻岩斷崖，旁邊的設施有伴手禮店、餐廳、乾淨廁所，3F 有免費觀景台'],
+ ['11:05–11:55','古宇利大橋','go','車過跨海大橋看海，可下到古宇利海灘踩水拍照'],
+ ['12:30–15:30','沖繩美麗海水族館（海洋博公園）','go','停留約 3 小時，含門票。海豚秀 13:00、15:00（約 10 分）。贈沖繩炊飯飯糰＋茶'],
+ ['17:00–18:00','美國村','go','繽紛街區＋日落海灘。想多逛的人可以在這裡解散，自己搭公車或計程車回那霸'],
+ ['19:00','那霸縣廳前解散','move','依路況可能提早或延後'],
+ ['19:15–21:00','晚餐　國際通周邊自由選','eat','國際通就在縣廳前旁邊。想看三線民謡表演可以去民謡ライブ居酒屋 あかばなぁ']]},
+{no:3,date:'04/01',wd:'四',title:'三日遊 Day 2　中部：嘉手納・植物樂園・BANTA CAFE・殘波岬・AEON 來客夢',svg:'cup',stay:['🚌 Klook 3 日遊第 2 天（中部）','🏨 OMO5 沖繩那霸'],
+ note:'今天集合比較早：08:10 在 BLUE SEAL 久茂地店前，08:20 出發。午餐在 BANTA CAFE 自費。今天團裡會在 AEON 來客夢（沖繩最大的購物中心）停 2.5 小時，跟 4/3 的行程是同一間，見 4/3 的說明。',
+ items:[
+ ['07:00–07:40','飯店早餐','eat'],
+ ['07:45–08:00','步行到集合點','move','飯店到縣廳前 RYUBO 百貨步行約 6–10 分（估計，未查證）'],
+ ['08:10','集合　BLUE SEAL 久茂地店前（RYUBO 百貨 1F）','move','08:10 集合、08:20 出發'],
+ ['09:05–09:35','道之驛 嘉手納','go','展望台可以看嘉手納美軍基地，有在地特產與伴手禮'],
+ ['09:50–11:00','東南植物樂園','go','含門票。熱帶、亞熱帶植物，有小動物、石獅子彩繪等體驗'],
+ ['11:35–12:55','午餐　BANTA CAFE by 星野集團','eat','海邊高台的海景咖啡廳，自費點咖啡、甜點、輕食'],
+ ['13:10–13:40','殘波岬','go','沖繩本島最西端，白色燈塔＋斷崖海景'],
+ ['14:20–16:50','AEON MALL 沖繩來客夢（ライカム）','go','團裡停 2.5 小時，贈每人冰淇淋 1 杯。沖繩最大的購物中心，專門店約 230–240 家'],
+ ['18:00','那霸縣廳前解散','move','依路況可能提早或延後'],
+ ['18:15–20:00','晚餐　第一牧志公設市場','eat','1 樓魚攤挑海鮮，拿到 2 樓食堂代客料理（料理費另計）。牧志站或美榮橋站步行約 10 分；從縣廳前走過去約 15 分（估計，未查證）']]},
+{no:4,date:'04/02',wd:'五',title:'三日遊 Day 3　南部：知念岬・新原海灘・玉泉洞・系滿・瀨長島',svg:'wave',stay:['🚌 Klook 3 日遊第 3 天（南部）','🏨 OMO5 沖繩那霸'],
+ note:'集合地點不一樣：08:30 在「那霸縣廳前」（BLUE SEAL 久茂地店對面），08:40 出發。午餐行程表沒排，建議在沖繩世界（玉泉洞）園區裡吃，或 14:00 到系滿漁市場吃海鮮。',
+ items:[
+ ['07:00–07:50','飯店早餐','eat'],
+ ['08:00–08:20','步行到集合點','move','飯店到縣廳前步行約 6–10 分（估計，未查證）'],
+ ['08:30','集合　那霸縣廳前（BLUE SEAL 對面）','move','08:30 集合、08:40 出發'],
+ ['09:40–10:10','知念岬公園','go','巴士會慢速開過 NIRAIKANAI 橋看海（塞車就不走橋）'],
+ ['10:25–11:10','新原海灘','go','散步看海；玻璃底船可向導遊買優惠票（停航時不賣）'],
+ ['11:25–13:25','沖繩世界文化王國（玉泉洞）','go','含套票（玉泉洞・王國村・毒蛇博物公園）。鐘乳石洞、琉球玻璃與陶器體驗、EISA 太鼓表演'],
+ ['14:00–15:00','糸滿漁市場（系滿海鮮市場）','eat','海鮮比市區便宜，生熟食都有'],
+ ['15:10–17:00','ASHIBINAA Outlet 或 iias 豐崎','go','二選一：Outlet 停 110 分，或 iias 豐崎停 90 分（可加購 DMM 水族館門票）'],
+ ['17:10–18:10','瀨長島 Umikaji Terrace','go','白色海景商店街，可近距離看飛機起降'],
+ ['18:30','那霸縣廳前解散','move','依路況可能提早或延後'],
+ ['18:45–20:30','晚餐　ゆうなんぎい（沖繩家庭料理）','eat','久茂地 3-3-3，縣廳前站步行 4–5 分。17:00–21:30（Hot Pepper），不接受預約、常要排隊']]},
+{no:5,date:'04/03',wd:'六',title:'波上宮＋AEON 來客夢　那霸 → 台北',svg:'plane',stay:['🏨 退房 11:00 前','✈ 長榮 BR185 19:55 – 20:30（桃園）'],
+ note:'飛機 19:55 起飛，17:00 前到機場。行李退房後寄放飯店，逛完回飯店拿再搭單軌去機場。週六往來客夢的路（國道 330 號一帶）可能塞，回程抓寬一點。',
+ items:[
+ ['07:30–08:20','飯店早餐','eat'],
+ ['08:30–08:50','步行到波上宮','move','飯店到波上宮約 1.5 公里，步行約 20 分（估計，未查證）；或叫計程車約 5 分'],
+ ['08:50–09:40','波上宮','go','琉球八社之首，蓋在海邊斷崖上，旁邊就是波之上海灘。境內免費、全年開放，御守與御朱印的授與所約 09:00–17:00'],
+ ['09:40–10:15','回飯店','move','步行約 20 分或計程車約 5 分（估計，未查證）'],
+ ['10:15–10:45','退房，行李寄放飯店','rest','退房時間 11:00'],
+ ['10:45–11:30','前往 AEON MALL 沖繩來客夢','move','計程車約 30–40 分（估計，未查證），5 人分 2 台；公車可從縣廳前搭，路線與時間沒查到，出發前用 Google 地圖查'],
+ ['11:30–15:15','AEON MALL 沖繩來客夢（自由逛）','go','沖繩最大的購物中心（店舖面積 7.8 萬平方公尺，琉球新報）。午餐在館內美食街或餐廳'],
+ ['15:15–16:15','回飯店拿行李','move','計程車約 40 分（週六可能塞車，估計，未查證）'],
+ ['16:20–16:45','單軌電車　縣廳前站 → 那霸機場站','move','約 10–12 分'],
+ ['17:00','那霸機場國際線航廈報到','move','BR185 19:55 起飛；起飛前 2–3 小時到'],
+ ['19:55–20:30','BR185 起飛，那霸 → 台北','move','抵達桃園第 2 航廈 20:30；機上素食餐 1 份已確認']]}
+];
+const RES=[
+['極高','Klook 沖繩 3 日遊【北部＋中部＋南部】','03/31（三）– 04/02（五）','Klook 選「沖繩3日遊【北部+中部+南部】」，日期選 3/31。全員放同一筆訂單才會排同一台巴士','24 小時前可免費取消。頁面選這個方案、還沒選日期時顯示 NT$4,644（2026-11-15 看到），實際每人價格要選日期後才確定'],
+['極高','首里城正殿 日期時段預約','03/30（二）13:30 前後','2027-01-01 13:00 開賣（入場日 2 個月前的 1 日 13:00，網路購票）','有料區成人 1,000 円；正殿以外的收費區不用預約'],
+['已訂','OMO5 沖繩那霸（3 間雙床房，含早餐）','03/30 – 04/03　4 晚','已用信用卡預付 JPY 199,248','取消費：2/18–3/22 收 10%、3/23 起 30%、未到 100%；改日期或取消另收 1,000 円手續費'],
+['已訂','長榮 BR112／BR185 經濟艙','03/30 06:45 去、04/03 19:55 回','已開票、座位已選','每人托運 1 件；去回各有 1 份中式素食餐']];
+const DAYPIC={1:'https://thumb.wikimedia.org/wikipedia/commons/thumb/6/61/Naha_Okinawa_Japan_Shuri-Castle-05a.jpg/960px-Naha_Okinawa_Japan_Shuri-Castle-05a.jpg',2:'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0a/Main_tank_of_the_Kuroshio_Sea_in_Okinawa_Churaumi_Aquarium.JPG/960px-Main_tank_of_the_Kuroshio_Sea_in_Okinawa_Churaumi_Aquarium.JPG',3:'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5b/Southeast_Botanical_Gardens_%E6%9D%B1%E5%8D%97%E6%A4%8D%E7%89%A9%E5%9C%92_-_panoramio.jpg/960px-Southeast_Botanical_Gardens_%E6%9D%B1%E5%8D%97%E6%A4%8D%E7%89%A9%E5%9C%92_-_panoramio.jpg',5:'https://thumb.wikimedia.org/wikipedia/commons/thumb/f/ff/Naha_Naminoue_Beach_%26_Naminoue-gu_12.jpg/960px-Naha_Naminoue_Beach_%26_Naminoue-gu_12.jpg'};
+const NORSV=[['首里そば','現場排隊・不能預約'],['ゆうなんぎい','不接受預約'],['第一牧志公設市場','現場・不用預約'],['國際通周邊','不訂位'],['BANTA CAFE','團體行程內'],['首里城公園','正殿要預約']];
+const PRICE=[['首里そば','價格查不到'],['BANTA CAFE','自費，價格查不到'],['第一牧志公設市場','價格查不到（海鮮按重量、2 樓代客料理另收費）'],['ゆうなんぎい','價格查不到'],['國際通周邊','視你選的店'],['糸滿漁市場','價格查不到'],['飯店早餐','訂房已含']];
+const NOPIC=/整理|退房|出發|集合|抵達|入住|寄放|早餐|自由選|休息|解散/;
+const PIC={
+"首里城公園":"https://thumb.wikimedia.org/wikipedia/commons/thumb/6/61/Naha_Okinawa_Japan_Shuri-Castle-05a.jpg/960px-Naha_Okinawa_Japan_Shuri-Castle-05a.jpg",
+"PARCO CITY":"https://thumb.wikimedia.org/wikipedia/commons/thumb/6/65/SAN-A_URASOE_WEST_COAST_PARCO_CITY.jpg/960px-SAN-A_URASOE_WEST_COAST_PARCO_CITY.jpg",
+"萬座毛":"https://thumb.wikimedia.org/wikipedia/commons/thumb/5/53/Onna_Okinawa_Japan_Cape-Manzamo-01.jpg/960px-Onna_Okinawa_Japan_Cape-Manzamo-01.jpg",
+"古宇利大橋":"https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3c/Nago_Okinawa_Kouri-Bridge-01.jpg/960px-Nago_Okinawa_Kouri-Bridge-01.jpg",
+"美麗海水族館":"https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7f/Whale_Shark_-_Churaumi_aquarium%2C_Okinawa%2C_Japan.jpg/960px-Whale_Shark_-_Churaumi_aquarium%2C_Okinawa%2C_Japan.jpg",
+"美國村":"https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4d/P_%E6%97%A5%E6%9C%AC_Japan_%E6%B2%96%E7%B9%A9_OKINAWA_Mihama_the_Beach_Tower_Hotel_room_balcony_view_Vessel_Hotel_n_%E7%BE%8E%E5%9C%8B%E6%9D%91_American_Village_morning_January_2025_R12S_01.jpg/960px-P_%E6%97%A5%E6%9C%AC_Japan_%E6%B2%96%E7%B9%A9_OKINAWA_Mihama_the_Beach_Tower_Hotel_room_balcony_view_Vessel_Hotel_n_%E7%BE%8E%E5%9C%8B%E6%9D%91_American_Village_morning_January_2025_R12S_01.jpg",
+"東南植物樂園":"https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9d/%E6%9D%B1%E5%8D%97%E6%A4%8D%E7%89%A9%E6%A5%BD%E5%9C%92.JPG/960px-%E6%9D%B1%E5%8D%97%E6%A4%8D%E7%89%A9%E6%A5%BD%E5%9C%92.JPG",
+"AEON MALL":"https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e1/AEON_Mall_Okinawa_Rycom_01.JPG/960px-AEON_Mall_Okinawa_Rycom_01.JPG",
+"波上宮":"https://thumb.wikimedia.org/wikipedia/commons/thumb/4/48/Naha_Naminoue_Beach_%26_Naminoue-gu_27.jpg/960px-Naha_Naminoue_Beach_%26_Naminoue-gu_27.jpg",
+"國際通":"https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e1/Night_at_Kokusai-dori_20250503183819.jpg/960px-Night_at_Kokusai-dori_20250503183819.jpg"
+};
+const MAPEX={};
+const PL=[
+['那霸機場入境',['Naha Airport']],
+['單軌電車　那霸機場站',['Naha Airport Station','Kenchomae Station']],
+['OMO5',['OMO5 Okinawa Naha by Hoshino Resorts']],
+['首里そば',['首里そば 那覇市首里赤田町']],
+['達摩寺',['西来院 達磨寺 那覇']],
+['首里城公園',['Shurijo Castle Park']],
+['PARCO CITY',['サンエー浦添西海岸 PARCO CITY']],
+['BLUE SEAL 久茂地',['BLUE SEAL 久茂地店 那覇']],
+['那霸縣廳前',['Kenchomae Station Naha']],
+['萬座毛',['Cape Manzamo']],
+['古宇利大橋',['Kouri Bridge']],
+['美麗海水族館',['Okinawa Churaumi Aquarium']],
+['美國村',['American Village Chatan']],
+['國際通',['Kokusai Dori Naha']],
+['嘉手納',['道の駅かでな']],
+['東南植物樂園',['Southeast Botanical Gardens Okinawa']],
+['BANTA CAFE',['BANTA CAFE by Hoshino Resorts']],
+['殘波岬',['Cape Zanpa']],
+['AEON MALL',['AEON MALL Okinawa Rycom']],
+['牧志公設市場',['第一牧志公設市場']],
+['知念岬',['Chinen Cape Park']],
+['新原海灘',['Mibaru Beach']],
+['玉泉洞',['Okinawa World Gyokusendo']],
+['糸滿漁市場',['Itoman Fishermans Market']],
+['ASHIBINAA',['Okinawa Outlet Mall Ashibinaa','iias Okinawa Toyosaki']],
+['瀨長島',['Senagajima Umikaji Terrace']],
+['ゆうなんぎい',['ゆうなんぎい 那覇 久茂地']],
+['波上宮',['Naminoue Shrine']],
+['那霸機場國際線',['Naha Airport International Terminal']]
+];
+const HOURS=[
+["首里そば","warn","11:30 開門、賣完就收：Serai 寫到 14:30，Rurubu 寫到 14:00 且常在 14:00 前賣完。公休日兩說：週日＋國定假日（Serai）或週四＋週日（Rurubu）。3/30 是週二，兩種說法都有開。電話 098-884-0556"],
+["達摩寺","warn","參拜時間與費用都查不到（寫這間寺的旅遊文章都沒提）。寺院一般白天可進境內，未能證實；12:15 去在一般寺院開放範圍內"],
+["首里城公園","ok","收費區 08:30–19:00（18:30 停止入場），免費區 08:00–19:30（iwafu 整理，未與官網直接核對）。正殿內部日期時段預約制"],
+["PARCO CITY","warn","商場整體營業時間沒查到；館內店家多寫 10:00–22:00（HMV），電影院 09:00–24:00。15:30–19:30 應該都在營業"],
+["ゆうなんぎい","warn","17:00–21:30（Hot Pepper），公休日查不到。4/2 是週五，出發前在 Google 地圖確認"],
+["第一牧志公設市場","ok","08:00–22:00，2 樓食堂最後點餐 20:00；休第 4 個週日、正月、舊曆新年、舊盆（NAVITIME）。4/1 週四有開。18:15 到，最晚 19:30 前點完"],
+["AEON MALL","ok","專門店 10:00–22:00、餐廳 10:00–23:00、超市 AEON STYLE 08:00–23:00，全年無休（じゃらん，第三方，未與官網核對）"],
+["波上宮","ok","境內免費、全年無休可參拜；授與所（御守、御朱印）約 09:00–17:00（Rurubu 等第三方，寫「參考」）。電話 098-868-3697"],
+["飯店早餐","warn","07:00–10:00（newt.net，第三方，官網沒寫）；入住時跟櫃檯確認"]];
+const HNOTE={
+1:'日本這 5 天（3/30–4/3）都不是國定假日，但正好是日本春假，景點與商場人會比較多。沖繩縣住宿稅 2027-02-01 起開徵（每人每晚房價的 2%，上限 2,000 円），訂房信寫可能要在櫃檯現付；以房價推算約每人每晚 160 円（估計，課稅基礎是否扣早餐沒查）。',
+5:'4/3 是週六：來客夢週末人多、路上可能塞車，回程時間抓寬。飛機 19:55 起飛，17:00 前一定要到機場。'};
+const BACKUP={
+"首里そば":["沒開或賣完：首里站一帶找別家沖繩麵，或直接到首里城公園入口附近用餐（店名與時間沒查，現場看）","素食者：沖繩麵湯頭多用豬骨、柴魚，請另找；這區沒查到素食專門店"],
+"國際通周邊":["民謡ライブ居酒屋 あかばなぁ（國際通中段）：三線島唄現場表演，料理最後點餐 22:00（單一來源）；價格查不到","沖繩そば タイラ製麺所 國際通店（牧志 2-7-21）：麵裡揉了海蘊（もずく）；營業時間沒查"],
+"來客夢（自由逛）":["4/1 團裡已逛過 2.5 小時：如果覺得夠了，4/3 改逛國際通、牧志公設市場一帶（離飯店步行可到），也不用擔心週六塞車趕不上飛機"]};
+const BKPLACE={"首里そば":[[],[]],"國際通周邊":[["民謡ライブ居酒屋 あかばなぁ 国際通り"],["タイラ製麺所 国際通り店"]],"來客夢（自由逛）":[["Kokusai Dori Naha","第一牧志公設市場"]]};
+const BKIMG={};
+const TIX=[["首里城公園","有料區成人 1,000 円、高中 760、國中小 370、6 歲以下免費（2026-11-23 起，琉球新報）。正殿內部要網路預約日期時段"],["波上宮","免費參拜"],["萬座毛","Klook 團含門票"],["美麗海水族館","Klook 團含門票"],["東南植物樂園","Klook 團含門票"],["玉泉洞","Klook 團含套票（玉泉洞・王國村・毒蛇博物公園）"],["新原海灘","玻璃底船自費，可向導遊買優惠票"]];
+const EXTRA={};
+const ALT=[["AEON 那霸店","那霸市金城（小祿站一帶）","沒查","離機場與市區近，比來客夢小很多；4/3 想省交通時間可以考慮"],["國際通・平和通商店街","縣廳前到牧志一帶","店家各自不同","伴手禮、零食最集中的地方，飯店步行可到"],["波之上海灘","波上宮旁","沒查","那霸市區唯一的海灘，拜完波上宮可以下去走走"]];
+
+const ICON={
+plane:'<svg viewBox="0 0 84 56" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 40 C26 10 52 10 76 20"/><path d="M60 14 L80 21 L62 30 L66 22 Z" fill="#fff"/><circle cx="6" cy="40" r="3" fill="#fff"/></svg>',
+wave:'<svg viewBox="0 0 84 56" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M4 36 q10 -10 20 0 t20 0 t20 0 t20 0"/><path d="M4 46 q10 -10 20 0 t20 0 t20 0 t20 0" opacity=".6"/><circle cx="62" cy="14" r="8" fill="#9CC2EA" stroke="none"/></svg>',
+city:'<svg viewBox="0 0 84 56" fill="#fff" fill-opacity=".9"><rect x="6" y="26" width="14" height="26"/><rect x="24" y="12" width="16" height="40"/><rect x="44" y="20" width="14" height="32"/><rect x="62" y="30" width="16" height="22"/><rect x="29" y="18" width="3" height="3" fill="#1F2A37"/><rect x="29" y="26" width="3" height="3" fill="#1F2A37"/></svg>',
+prang:'<svg viewBox="0 0 84 56" fill="#fff" fill-opacity=".92"><path d="M42 3 L47 16 L52 16 L55 30 L60 30 L64 52 L20 52 L24 30 L29 30 L32 16 L37 16 Z"/><path d="M2 52 h80" stroke="#fff" stroke-width="2"/></svg>',
+cup:'<svg viewBox="0 0 84 56" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M22 20 h34 v16 a14 14 0 0 1 -14 14 h-6 a14 14 0 0 1 -14 -14 z"/><path d="M56 24 h6 a6 6 0 0 1 0 12 h-6"/><path d="M32 6 q4 5 0 9 M44 6 q4 5 0 9" opacity=".8"/></svg>'};
+const img=(q)=>'https://www.google.com/search?tbm=isch&q='+encodeURIComponent(q);
+const clean=t=>{t=t.replace(/[☕📷🍳🥭🎨🛍️✨🎷🍸]/gu,'').trim();if(t.includes('　'))t=t.split('　').pop();return t.split(/[（(]/)[0].replace(/「|」/g,'').trim()};
+const norOf=t=>{const k=NORSV.find(([n])=>t.includes(n));return k?` <span class="tag nor">${k[1]}</span>`:''};
+const priceOf=t=>{const k=PRICE.find(([n])=>t.includes(n));return k?`<div class="n price">每人均價：${esc(k[1])}</div>`:''};
+const picOf=t=>{const k=Object.keys(PIC).find(n=>t.includes(n));return k?`<a href="${PIC[k]}" target="_blank" rel="noopener"><img class="pic" loading="lazy" referrerpolicy="no-referrer" alt="${k}" src="${PIC[k]}"></a>`:''};
+const HLAB={ok:'營業時間',warn:'需再確認',bad:'公休／衝突'};
+const hrsOf=t=>{const h=HOURS.find(r=>t.includes(r[0]));return h?`<div class="hrs ${h[1]}"><b>${HLAB[h[1]]}</b>${esc(h[2])}</div>`:''};
+const bkMaps=ns=>ns.length?`<div class="maps">${ns.map(n=>`<a class="mapchip" href="${esc(mapUrl(n,0))}" target="_blank" rel="noopener">📍 ${esc(n)}</a><a class="mapchip photo" href="${esc(img(n))}" target="_blank" rel="noopener">看照片</a>`).join('')}</div>`:'';
+const bkOf=t=>{const k=Object.keys(BACKUP).find(n=>t.includes(n));if(!k)return '';const im=BKIMG[k];const pic=im?`<figure class="bkimg"><img src="${im.src}" alt="${esc(im.cap)}" loading="lazy"><figcaption>${esc(im.cap)}</figcaption></figure>`:'';const pl=BKPLACE[k]||[];return `<details class="bk"><summary>備案（${BACKUP[k].length}）</summary>${pic}${BACKUP[k].map((x,i)=>`<div class="bki">${esc(x)}${bkMaps(pl[i]||[])}</div>`).join('')}</details>`};
+const tixOf=t=>{const h=TIX.find(r=>t.includes(r[0]));return h?`<div class="tix">🎫 ${esc(h[1])}</div>`:''};
+const mapChips=(title,no)=>{const h=PL.find(r=>title.includes(r[0]));return h?h[1].map(n=>`<a class="mapchip" href="${esc(mapUrl(n,no))}" target="_blank" rel="noopener">📍 ${esc(n)}</a>`).join(''):''};
+const extraPics=t=>{const k=Object.keys(EXTRA).find(n=>t.includes(n));return k?EXTRA[k].map(([c,u])=>`<figure class="xpic"><img class="pic" loading="lazy" referrerpolicy="no-referrer" alt="${c}" src="${u}"><figcaption>${c}</figcaption></figure>`).join(''):''};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const cityOf=n=>'Okinawa';
+const mapUrl=(name,no)=>MAPEX[name]||('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(/Okinawa|那覇|Naha|沖縄/.test(name)?name:name+' Okinawa'));
+const nav=document.getElementById('nav'),host=document.getElementById('days');
+D.forEach(d=>{const city=cityOf(d.no);
+ nav.insertAdjacentHTML('beforeend',`<a href="#day${d.no}"><b>${d.date}</b>Day ${d.no}</a>`);
+ const li=d.items.map(([t,title,k,n,link,w],ix)=>`<li id="it-${d.no}-${ix}"${k==='move'?' class="mv"':''}><div class="t">${esc(t)}</div><div class="dot ${k||''}"></div><div class="what${k!=='move'&&picOf(title)?' hasp':''}"><div class="txt"><strong>${esc(title)}${norOf(title)}${w?` <span class="tag warn">待確認</span>`:''}</strong>${n?`<div class="n">${esc(n)}</div>`:''}${k==='move'?'':priceOf(title)}${w?`<div class="n" style="color:var(--warn)">${esc(w)}</div>`:''}${hrsOf(title)}${tixOf(title)}${bkOf(title)}<div class="maps">${mapChips(title,d.no)}${(k==='eat'||k==='go')&&!NOPIC.test(title)?`<a class="mapchip photo" href="${esc(img(clean(title)+' '+city))}" target="_blank" rel="noopener">看照片</a>`:''}</div></div><div class="picbox">${k==='move'?'':picOf(title)+extraPics(title)}</div></div></li>`).join('');
+ host.insertAdjacentHTML('beforeend',`<section class="day" id="day${d.no}"><div class="dayhead${DAYPIC[d.no]?' cover':''}"${DAYPIC[d.no]?` style="background-image:linear-gradient(90deg,rgba(8,16,28,.82),rgba(8,16,28,.25)),url('${DAYPIC[d.no]}')"`:''}><div class="no">${d.no}</div><div><div class="meta">${d.date}（${d.wd}）</div><h2>${esc(d.title)}</h2></div>${ICON[d.svg]}</div><div class="card"><div class="stay">${d.stay.map(s=>`<span>${esc(s)}</span>`).join('')}</div>${d.note?`<div class="note">${esc(d.note)}</div>`:''}${HNOTE[d.no]?`<div class="hrsnote">📅 ${esc(HNOTE[d.no])}</div>`:''}<ol class="tl">${li}</ol></div></section>`);
+});
+document.getElementById('rows').closest('table').classList.add('res');
+document.getElementById('rows').innerHTML=RES.map(r=>`<tr><td><span class="tag ${r[0]==='極高'?'must':r[0]==='高'?'warn':''}">${r[0]}</span></td><td data-l="項目"><strong>${esc(r[1])}</strong></td><td data-l="日期／時段">${esc(r[2])}</td><td data-l="預約建議">${esc(r[3])}</td><td data-l="備註">${esc(r[4])}</td></tr>`).join('');
+document.getElementById('altrows').innerHTML=ALT.map(r=>`<tr><td><strong>${esc(r[0])}</strong></td><td>${esc(r[1])}</td><td>${esc(r[2])}</td><td>${esc(r[3])}</td></tr>`).join('');
+(function(){
+ const btn=document.getElementById('themebtn'),order=['auto','light','dark'],label={auto:'跟隨系統',light:'淺色',dark:'深色'};
+ let m='auto';try{m=localStorage.getItem('oki-theme')||'auto'}catch(e){}
+ if(!label[m])m='auto';
+ function apply(){const r=document.documentElement;if(m==='auto')r.removeAttribute('data-theme');else r.setAttribute('data-theme',m);btn.textContent=label[m];}
+ btn.onclick=()=>{m=order[(order.indexOf(m)+1)%3];try{localStorage.setItem('oki-theme',m)}catch(e){}apply()};
+ apply();
+})();
+(function(){
+ const links=[...document.querySelectorAll('nav.days a')],secs=[...document.querySelectorAll('section.day')],lis=[...document.querySelectorAll('section.day ol.tl li')];
+ if(!secs.length)return;
+ let curA=null,curL=null,tick=false;
+ function run(){tick=false;
+  const line=Math.min(innerHeight*0.4,320);let di=0;
+  secs.forEach((s,i)=>{if(s.getBoundingClientRect().top<=line)di=i});
+  const a=links[di];
+  if(a!==curA){if(curA)curA.classList.remove('cur');curA=a;if(a){a.classList.add('cur');const n=a.parentElement;if(n.scrollWidth>n.clientWidth){n.scrollTo({left:a.offsetLeft-n.clientWidth/2+a.offsetWidth/2,behavior:'smooth'})}}}
+  let li=null;
+  if(secs[di].getBoundingClientRect().bottom>line)lis.forEach(l=>{const r=l.getBoundingClientRect();if(r.top<=line&&r.bottom>line)li=l});
+  if(li!==curL){if(curL)curL.classList.remove('cur');curL=li;if(li)li.classList.add('cur')}
+ }
+ addEventListener('scroll',()=>{if(!tick){tick=true;requestAnimationFrame(run)}},{passive:true});
+ addEventListener('resize',run);run();
+})();
+</script>
+
+<script src="tools.js?v=1"></script>
+</body>
+</html>
