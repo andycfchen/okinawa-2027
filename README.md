@@ -2,7 +2,7 @@
 
 網頁：https://andycfchen.github.io/okinawa-2027/
 
-單檔 `index.html`（版型沿用 bangkok-2026），右下 🧰 工具面板在 `tools.js`／`tools.css`（日圓、5 人）。資料都在 `index.html` 的 JS 常數：`D`（每天行程）、`RES`（預約清單）、`HOURS`（營業時間標記）、`HNOTE`（逐日提醒）、`PIC`、`PL`（地圖 chip）、`BACKUP`（備案）、`TIX`（門票）。改了 `D` 記得同步 `tools.js` 的 `TODO`、`PLAN0`，並把 `tools.js?v=` 加一。
+單檔 `index.html`（版型沿用 bangkok-2026），右下 🧰 工具面板在 `tools.js`／`tools.css`（日圓、6 人）。資料都在 `index.html` 的 JS 常數：`D`（每天行程）、`RES`（預約清單）、`HOURS`（營業時間標記）、`HNOTE`（逐日提醒）、`PIC`、`PL`（地圖 chip）、`BACKUP`（備案）、`TIX`（門票）。改了 `D` 記得同步 `tools.js` 的 `TODO`、`PLAN0`，並把 `tools.js?v=` 加一。
 
 ## 行程骨架
 
@@ -25,7 +25,7 @@
 
 ## 待確認
 
-- 機票 5 人，飯店 3 間 × 2 人＝6 人，人數不一致。
+- 6 人同行、同班機；機票行程單只列 5 人，第 6 位是另一筆訂位，確認航班與座位。
 - 一位中式素食：北部團的飯糰不提供素食；沖繩麵湯頭含豬骨、柴魚。
 - 首里そば公休日兩說；PARCO CITY 商場營業時間；飯店寄放行李規定。
 

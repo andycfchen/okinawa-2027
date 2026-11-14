@@ -10,7 +10,7 @@
     function save() { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) { } }
     st.todo = st.todo || {};
     st.fav = st.fav || {};
-    st.members = (st.members && st.members.length === 5) ? st.members : ['成員1', '成員2', '成員3', '成員4', '成員5'];
+    st.members = (st.members && st.members.length === 6) ? st.members : ['成員1', '成員2', '成員3', '成員4', '成員5', '成員6'];
     st.exp = st.exp || [];
     st.rate = st.rate || '';
     st.mode = st.mode || 'act';
@@ -22,14 +22,14 @@
     var KIND = { eat: '餐飲', go: '景點', move: '移動', rest: '休息' };
     var TODO = [
       { g: '要訂位／購票', items: [
-        ['klook', 'Klook 沖繩 3 日遊（北部＋中部＋南部）｜03/31–04/02', '5 人放同一筆訂單才同車；24 小時前可免費取消'],
+        ['klook', 'Klook 沖繩 3 日遊（北部＋中部＋南部）｜03/31–04/02', '6 人放同一筆訂單才同車；24 小時前可免費取消'],
         ['shuri', '首里城正殿預約｜03/30 13:30 前後', '2027-01-01 13:00 網路開賣；有料區成人 1,000 円'],
         ['hotel', '✅ 已訂｜OMO5 沖繩那霸 3 間雙床 4 晚', '已預付；2/18 起取消收 10%，3/23 起 30%'],
         ['flight', '✅ 已訂｜長榮 BR112／BR185', '座位已選；素食餐 1 份已確認'],
         ['vjw', 'Visit Japan Web 入境登錄', '出發前填好，入境出示 QR code']
       ] },
       { g: '出發前再確認', items: [
-        ['people', '人數：機票 5 人、飯店 6 位大人', '第 6 位是另外搭機，還是飯店要改人數'],
+        ['people', '第 6 位的機票（另一筆訂位）', '確認也是 BR112／BR185，座位要不要一起選'],
         ['veg', '素食者的三餐', '北部團飯糰不提供素食要自備；沖繩麵湯頭多含豬骨、柴魚'],
         ['shurisoba', '首里そば 03/30 有沒有開', '公休日兩說（週日＋假日／週四＋週日）；電話 098-884-0556'],
         ['daruma', '達摩寺（西來院）參拜時間', '網路查不到，出發前看 Google 地圖'],
@@ -40,10 +40,10 @@
     ];
     /* 規劃預算預設：只放「有來源的票價」，其餘請自己輸入。pp＝每人 JPY，cnt＝人數，on＝是否計入 */
     var PLAN0 = [
-      { id: 'p1', name: '首里城有料區（成人，2026-11-23 起）', cat: '景點/門票', pp: 1000, cnt: 5, on: true },
-      { id: 'p2', name: '單軌 那霸機場→縣廳前（來源 270 或 290）', cat: '交通', pp: 290, cnt: 5, on: true },
-      { id: 'p3', name: '單軌 縣廳前→那霸機場', cat: '交通', pp: 290, cnt: 5, on: true },
-      { id: 'p4', name: '住宿稅（估計：約 160 円 × 4 晚）', cat: '住宿', pp: 640, cnt: 5, on: true }
+      { id: 'p1', name: '首里城有料區（成人，2026-11-23 起）', cat: '景點/門票', pp: 1000, cnt: 6, on: true },
+      { id: 'p2', name: '單軌 那霸機場→縣廳前（來源 270 或 290）', cat: '交通', pp: 290, cnt: 6, on: true },
+      { id: 'p3', name: '單軌 縣廳前→那霸機場', cat: '交通', pp: 290, cnt: 6, on: true },
+      { id: 'p4', name: '住宿稅（估計：約 160 円 × 4 晚）', cat: '住宿', pp: 640, cnt: 6, on: true }
     ];
     if (!st.plan) { st.plan = JSON.parse(JSON.stringify(PLAN0)); save(); }
     else { var n0 = st.plan.length; st.plan = st.plan.filter(function (p) { return !(p.id === 'p6' && !p.on); }); if (st.plan.length !== n0) save(); }
@@ -360,7 +360,7 @@
       var cmp = CATS.filter(function (c) { return A.by[c].c > 0 || P.by[c].c > 0; });
       body.innerHTML = head +
         '<div class="tl-sec"><div class="tl-cl">實際支出（全團）</div><div class="tl-big">¥' + fmt(r.total) + '</div><div class="tl-note">' + twd(r.total).replace(/[（）]/g, '') + '</div></div>' +
-        '<div class="tl-sec"><h3>成員（5 人，可改名）</h3><div class="tl-row">' + M.map(function (m, i) { return '<input class="tl-in" data-m="' + i + '" value="' + esc(m) + '" style="width:23%;min-width:70px">'; }).join('') + '</div></div>' +
+        '<div class="tl-sec"><h3>成員（6 人，可改名）</h3><div class="tl-row">' + M.map(function (m, i) { return '<input class="tl-in" data-m="' + i + '" value="' + esc(m) + '" style="width:23%;min-width:70px">'; }).join('') + '</div></div>' +
         '<div class="tl-sec"><h3>新增支出（JPY）</h3><div class="tl-row"><input class="tl-in w" id="tl-ed" placeholder="項目（例：午餐）"><input class="tl-in" id="tl-ea" type="number" min="0" step="0.01" placeholder="金額" style="width:100px"></div>' +
         '<div class="tl-row">' + catSel('tl-ec') + '<select class="tl-sel" id="tl-ep">' + sel + '</select><span class="tl-note">付款</span></div>' +
         '<div class="tl-note">分攤的人：</div><div class="tl-row">' + parts + '</div><div class="tl-row"><button type="button" class="tl-btn pri" id="tl-add">新增</button></div></div>' +
