@@ -2,7 +2,7 @@
 
 網頁：https://andycfchen.github.io/okinawa-2027/
 
-單檔 `index.html`（版型沿用 bangkok-2026），右下 🧰 工具面板在 `tools.js`／`tools.css`（日圓、6 人）。資料都在 `index.html` 的 JS 常數：`D`（每天行程）、`RES`（預約清單）、`HOURS`（營業時間標記）、`HNOTE`（逐日提醒）、`PIC`、`PL`（地圖 chip）、`BACKUP`（備案）、`TIX`（門票）。改了 `D` 記得同步 `tools.js` 的 `TODO`、`PLAN0`，並把 `tools.js?v=` 加一。
+單檔 `index.html`（版型沿用 bangkok-2026），右下 🧰 工具面板在 `tools.js`／`tools.css`（日圓、6 人）。資料都在 `index.html` 的 JS 常數：`D`（每天行程）、`RES`（預約清單）、`HOURS`（營業時間標記）、`HNOTE`（逐日提醒）、`PIC`、`PL`（地圖 chip）、`BACKUP`（備案）、`TIX`（門票）。另有手帳版 `journal.html`（吉伊卡哇／三麗鷗貼圖切換，`?brand=chiikawa`／`?brand=sanrio` 直接開指定版），它即時讀 `index.html` 的常數，地圖座標在 journal 的 `PLACES`（依地名粗估）。改了 `D` 記得同步 `tools.js` 的 `TODO`、`PLAN0`，並把 `tools.js?v=` 加一。
 
 ## 行程骨架
 

@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>2027 沖繩散步帖</title>
+<meta name="description" content="2027/03/30–04/03 沖繩 手帳風互動行程頁（資料即時讀取自 index.html）">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Huninn&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+:root{
+  --bg:#FFF9F0; --paper:#FFFFFF; --land:#FFF6E8; --ink:#4A3A2A; --ink2:#7D6A55;
+  --tan:#FFF0D4; --tan-border:#E8CCA0;
+  --blob1:#FFF0C2; --blob2:#E2F4FC; --blob3:#FFE4EC; --blob4:#E4F7DF;
+  --red:#FF6B6B; --yellow:#FFD95A; --pink:#FF9EB5; --green:#7ED37E;
+  --line:rgba(74,58,42,.13); --water:#C9ECFA; --mt:#D5F0C5; --mt2:#B8E2A3; --park:#E4F7DC; --road:#F9EBC8; --team2:#38B27E;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+:root[data-theme="pink"]{
+  --bg:#FFF5F8; --paper:#FFFFFF; --land:#FFF0F5; --ink:#4A353B; --ink2:#85656E;
+  --tan:#FFE6EE; --tan-border:#F3C1CE;
+  --blob1:#FFE6EE; --blob2:#E8F4FF; --blob3:#FFF2C9; --blob4:#E6F8EE;
+  --red:#FF6584; --yellow:#FFE07D; --pink:#FF8FB1; --green:#7ED386;
+  --road:#FFEBF0;
+}
+*,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none!important}
+html{scroll-padding-top:env(safe-area-inset-top,0px);color-scheme:light}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Huninn","Zen Maru Gothic","PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif;
+  line-height:1.6; -webkit-font-smoothing:antialiased;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cg fill='%23FFD166' opacity='.42'%3E%3Cpath d='M32 22l3.5 7.5 7.5 3.5-7.5 3.5-3.5 7.5-3.5-7.5-7.5-3.5 7.5-3.5z'/%3E%3Cpath d='M150 95l2.5 5.5 5.5 2.5-5.5 2.5-2.5 5.5-2.5-5.5-5.5-2.5 5.5-2.5z'/%3E%3Cpath d='M85 160l2 4 4 2-4 2-2 4-2-4-4-2 4-2z'/%3E%3Ccircle cx='110' cy='45' r='2.5'/%3E%3Ccircle cx='45' cy='135' r='2'/%3E%3C/g%3E%3Cg fill='%23FF9EB5' opacity='.38'%3E%3Ccircle cx='170' cy='35' r='3'/%3E%3Ccircle cx='25' cy='85' r='2.5'/%3E%3Cpath d='M165 165l2.5 5 5 2.5-5 2.5-2.5 5-2.5-5-5-2.5 5-2.5z'/%3E%3C/g%3E%3Cg fill='%2389CFF0' opacity='.35'%3E%3Ccircle cx='70' cy='25' r='2.2'/%3E%3Ccircle cx='130' cy='175' r='2.5'/%3E%3C/g%3E%3C/svg%3E");
+}
+a{color:inherit}
+.wrap{max-width:1220px;margin:0 auto;padding:18px 16px 48px}
+
+/* header */
+header.top{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 20px;
+  margin:4px 4px 16px;padding:14px 20px;
+  background:linear-gradient(135deg, var(--tan) 0%, #FFFDF9 100%);
+  border:2.5px solid var(--ink);border-radius:24px;
+  box-shadow:0 5px 0 rgba(74,58,42,.1);position:relative;overflow:hidden;
+}
+.title{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.title-mascots{display:flex;align-items:center;margin-right:2px}
+.title-mascots svg{width:48px;height:48px;margin-right:-8px;filter:drop-shadow(0 2px 0 rgba(74,58,42,.12));transition:transform .2s}
+.title-mascots svg:hover{transform:translateY(-4px) rotate(-5deg)}
+.title h1{margin:0;font-family:"Zen Maru Gothic","Huninn",sans-serif;font-weight:900;font-size:clamp(24px,4.2vw,38px);line-height:1.18;letter-spacing:.02em}
+.title p{margin:3px 0 0;color:var(--ink2);font-size:14.5px}
+.top-actions{display:flex;gap:8px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;border:2px solid var(--ink);background:var(--paper);color:var(--ink);font:inherit;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;box-shadow:0 2px 0 rgba(74,58,42,.12);transition:transform .15s,background .15s}
+.chip:hover{background:var(--yellow);color:#4A3A2A;transform:translateY(-1px)}
+.chip[aria-pressed="true"]{background:var(--red);border-color:var(--ink);color:#fff}
+#brandBtn{background:linear-gradient(135deg,#FFE4EE 0%,#E8F4FF 100%);color:#4A3A2A}
+#brandBtn:hover{background:linear-gradient(135deg,#FFD0E2 0%,#D5ECFF 100%)}
+#brandBtn[aria-pressed="true"]{background:linear-gradient(135deg,#FF5C8D 0%,#FF8FB1 100%);color:#fff}
+
+/* 角色貼紙立體白邊濾鏡 & 自訂圖檔彈窗 */
+.title-mascots svg, .ticket b svg, .day-head h2 svg, .pal-chip svg, .vig svg.pal, .tips-mascots svg, #map use {
+  filter: drop-shadow(0 1.5px 0 #FFFFFF) drop-shadow(0 -1.5px 0 #FFFFFF) drop-shadow(1.5px 0 0 #FFFFFF) drop-shadow(-1.5px 0 0 #FFFFFF) drop-shadow(0 3px 3px rgba(74,58,42,.18));
+}
+
+/* day tickets */
+nav.days{display:flex;gap:10px;overflow-x:auto;padding:4px 4px 14px;scrollbar-width:thin}
+.ticket{
+  flex:0 0 auto;position:relative;min-width:124px;padding:10px 16px 10px 16px;border:2.5px solid var(--ink);border-radius:14px;
+  background:var(--paper);color:var(--ink);font:inherit;text-align:left;cursor:pointer;
+  box-shadow:0 3px 0 rgba(74,58,42,.1);transition:transform .15s,background .15s;
+}
+.ticket:hover{transform:translateY(-2px);background:var(--blob1)}
+.ticket b{display:flex;align-items:center;gap:6px;font-family:"Zen Maru Gothic","Huninn",sans-serif;font-weight:900;font-size:18px;line-height:1.15}
+.ticket b svg{width:26px;height:26px;flex:0 0 auto}
+.ticket span{display:block;font-size:12.5px;color:var(--ink2);margin-top:2px}
+.ticket[aria-selected="true"]{background:var(--yellow);color:#4A3A2A;transform:translateY(-2px)}
+.ticket[aria-selected="true"] span{color:#4A3A2A;font-weight:700}
+.ticket .today{position:absolute;top:-2px;right:10px;font-size:11px;font-style:normal;font-weight:700;background:var(--red);color:#fff;padding:1px 7px;border-radius:0 0 8px 8px;border:1.5px solid var(--ink);border-top:0}
+
+/* day page */
+.page{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:880px){.page{grid-template-columns:1fr}}
+.day-head{
+  grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;
+  padding:10px 16px;background:var(--paper);border:2.5px solid var(--ink);border-radius:18px;
+  box-shadow:0 4px 0 rgba(74,58,42,.08);
+}
+.day-head h2{margin:0;display:flex;align-items:center;gap:8px;font-family:"Zen Maru Gothic","Huninn",sans-serif;font-weight:900;font-size:clamp(20px,3vw,28px);line-height:1.25}
+.day-head h2 svg{width:38px;height:38px;flex:0 0 auto}
+.day-head .meta{color:var(--ink2);font-size:14.5px}
+.day-head .budget{margin-left:auto;font-size:14.5px;font-weight:700;background:var(--blob1);border:2px dashed var(--ink);border-radius:10px;padding:3px 12px}
+
+.mapcard{background:var(--paper);border:3px solid var(--ink);border-radius:24px;overflow:hidden;position:relative;box-shadow:0 6px 0 rgba(74,58,42,.1)}
+.mapcard svg#map{display:block;width:100%;height:auto;touch-action:manipulation}
+.clockbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:12px 16px;border-top:3px solid var(--ink);background:var(--paper)}
+.clock{font-family:"Zen Maru Gothic","Huninn",sans-serif;font-weight:900;font-size:30px;line-height:1;min-width:92px;font-variant-numeric:tabular-nums}
+.status{flex:1 1 200px;font-size:15px;color:var(--ink2);min-height:1.6em;font-weight:700}
+.ctrl{display:flex;align-items:center;gap:8px;width:100%}
+.play{width:44px;height:44px;border-radius:50%;border:2.5px solid var(--ink);background:var(--red);color:#fff;font-size:18px;cursor:pointer;flex:0 0 auto;display:grid;place-items:center;box-shadow:0 2px 0 rgba(74,58,42,.2)}
+.play:hover{filter:brightness(1.06);transform:scale(1.04)}
+input[type=range]{flex:1;accent-color:var(--red);height:28px;cursor:pointer}
+.speed{border:2px solid var(--ink);background:var(--blob1);color:var(--ink);border-radius:999px;font:inherit;font-size:13px;font-weight:700;padding:4px 12px;cursor:pointer}
+.pals{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:10px 16px 12px;font-size:13px;color:var(--ink2);border-top:2px dashed var(--line);background:var(--bg)}
+.pal-chip{display:inline-flex;align-items:center;gap:4px;background:var(--paper);border:1.5px solid var(--ink);border-radius:999px;padding:2px 9px 2px 4px;font-weight:700;color:var(--ink)}
+.pal-chip svg{width:24px;height:24px}
+.scale-note{font-size:12px;color:var(--ink2);padding:4px 16px 12px;background:var(--bg)}
+
+/* timeline */
+ol.stops{list-style:none;margin:0;padding:0;position:relative}
+ol.stops::before{content:"";position:absolute;left:60px;top:12px;bottom:12px;border-left:3px dotted var(--ink2);opacity:.55}
+.stop{position:relative;display:grid;grid-template-columns:72px 1fr;gap:10px;margin-bottom:11px}
+.stop .t{font-family:"Zen Maru Gothic","Huninn",sans-serif;font-weight:700;font-size:15px;text-align:right;padding-top:12px;font-variant-numeric:tabular-nums;padding-right:26px}
+.stop .t::after{content:"";position:absolute;left:54px;top:17px;width:13px;height:13px;border-radius:50%;background:var(--paper);border:3px solid var(--ink)}
+.stop.done .t::after{background:var(--ink2);border-color:var(--ink2)}
+.stop.now .t::after{background:var(--red);border-color:var(--red);box-shadow:0 0 0 4px rgba(255,107,107,.28)}
+.card{width:100%;text-align:left;font:inherit;color:var(--ink);background:var(--paper);border:2.5px solid var(--ink);border-radius:16px;padding:10px 14px;cursor:pointer;box-shadow:0 3px 0 rgba(74,58,42,.08);transition:transform .15s,background .15s}
+.card:hover{transform:translateY(-1px);background:var(--blob1)}
+.stop.now .card{background:var(--yellow);color:#4A3A2A;border-width:3px}
+.stop.now .card .note,.stop.now .card .sub{color:#4A3A2A}
+.card .name{font-size:16px;font-weight:700;display:flex;gap:8px;align-items:flex-start}
+.card .sub{font-size:13px;color:var(--ink2);margin-top:2px}
+.card .note{font-size:13px;color:var(--ink2);margin-top:4px}
+.tag{display:inline-block;font-size:12px;font-weight:700;border-radius:6px;padding:1px 7px;margin:5px 4px 0 0;border:1.5px solid var(--ink);background:var(--blob1)}
+.tag.hot{background:var(--red);color:#fff;border-color:var(--ink)}
+.links{margin-top:6px;display:flex;gap:8px;flex-wrap:wrap}
+.links a{font-size:13px;font-weight:700;text-decoration:none;border-bottom:2px solid var(--pink)}
+.empty-row .card{border-style:dashed;cursor:default;background:var(--paper)}
+
+/* svg map */
+.m-land{fill:var(--land)}
+.m-water{fill:var(--water)}
+.m-grid{stroke:var(--line);stroke-width:1}
+.m-path{fill:none;stroke:var(--ink);stroke-width:3.2;stroke-dasharray:3 8;stroke-linecap:round;opacity:.55}
+.m-path.walked{stroke:var(--red);opacity:.95;stroke-width:4}
+.m-path.walked.t1{stroke:var(--team2)}
+.bg-sea{fill:var(--water)}
+.bg-wave{fill:none;stroke:var(--paper);stroke-width:3;stroke-linecap:round;opacity:.85}
+.bg-river{fill:none;stroke:var(--water);stroke-width:24;stroke-linecap:round}
+.bg-road{fill:none;stroke:var(--road);stroke-width:12;stroke-linecap:round}
+.bg-mt{fill:var(--mt);stroke:var(--mt2);stroke-width:3;stroke-linejoin:round}
+.bg-park{fill:var(--park)}
+.bg-island{fill:var(--land);stroke:var(--ink2);stroke-width:2;stroke-dasharray:4 5}
+.bg-lbl{font-size:16px;fill:var(--ink2);opacity:.85;font-style:normal;font-weight:700}
+.teams{display:flex;flex-wrap:wrap;gap:6px 16px}
+.team-tag{display:inline-block;font-size:12px;font-weight:700;border-radius:6px;padding:1px 7px;margin:4px 4px 0 0;color:#fff;background:var(--red);border:1.5px solid var(--ink)}
+.team-tag.t1{background:var(--team2)}
+.m-dist{font-size:15px;font-weight:700;fill:var(--ink2);paint-order:stroke;stroke:var(--land);stroke-width:5px}
+.m-area{font-family:"Zen Maru Gothic","Huninn",sans-serif;font-weight:900;font-size:30px;fill:var(--ink);opacity:.13}
+.m-pin circle.base{fill:var(--paper);stroke:var(--ink);stroke-width:3}
+.m-pin.now circle.base{fill:var(--yellow)}
+.m-pin.done circle.base{fill:var(--land);stroke:var(--ink2)}
+.m-pin text.ic{font-size:22px;text-anchor:middle;dominant-baseline:central}
+.m-pin .lab rect{fill:var(--paper);stroke:var(--ink);stroke-width:2}
+.m-pin .lab text{font-size:14.5px;font-weight:700;fill:var(--ink);text-anchor:middle;dominant-baseline:central}
+.m-pin.now .lab rect{fill:var(--red);stroke:var(--ink)}
+.m-pin.now .lab text{fill:#fff}
+.m-pin{cursor:pointer}
+.m-pin:focus-visible circle.base{stroke:var(--red);stroke-width:5}
+.compass text{font-size:14px;fill:var(--ink2);text-anchor:middle;font-weight:700}
+
+:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+footer{margin-top:28px;text-align:center;font-size:13px;color:var(--ink2)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:14px;font-size:14px;font-weight:700;max-width:90vw;opacity:0;pointer-events:none;transition:opacity .25s;z-index:99;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.toast.show{opacity:1}
+
+/* ========== 手繪攻略地圖總覽 (#poster) ========== */
+.poster{
+  background:var(--paper);border:3px solid var(--ink);border-radius:28px;
+  padding:0 0 22px;position:relative;overflow:hidden;
+  box-shadow:0 8px 0 rgba(74,58,42,.09);
+  background-image:
+    radial-gradient(circle at 12% 18%, rgba(255,217,90,.20) 0 42px, transparent 43px),
+    radial-gradient(circle at 86% 32%, rgba(255,158,181,.18) 0 48px, transparent 49px),
+    radial-gradient(circle at 38% 78%, rgba(201,236,250,.28) 0 52px, transparent 53px),
+    radial-gradient(circle at 72% 82%, rgba(126,211,126,.16) 0 44px, transparent 45px);
+}
+.poster-banner{
+  background:linear-gradient(180deg, var(--tan) 0%, #FFF9EC 100%);
+  border-bottom:2.5px solid var(--ink);
+  padding:16px 22px;
+  margin-bottom:20px;
+  position:relative;
+  text-align:center;
+}
+.poster-title{
+  margin:0;
+  font-family:"Zen Maru Gothic","Huninn",sans-serif;
+  font-weight:900;
+  font-size:clamp(20px,3.2vw,32px);
+  line-height:1.3;
+  color:var(--ink);
+}
+.poster-title small{font-size:.66em;font-weight:700;white-space:nowrap;color:var(--ink2)}
+.poster-scroll{overflow-x:auto;padding:4px 18px 10px}
+.poster-grid{
+  position:relative;
+  display:grid;
+  grid-template-columns:repeat(5,minmax(162px,1fr));
+  gap:20px;
+  min-width:1050px;
+  padding-bottom:8px;
+}
+.pcol{position:relative;z-index:1}
+.pcol h3{
+  margin:0 0 18px;
+  font-size:13.5px;
+  line-height:1.35;
+  text-align:center;
+  background:var(--tan);
+  border:2px solid var(--ink);
+  border-radius:16px;
+  padding:6px 10px;
+  box-shadow:0 3px 0 rgba(74,58,42,.1);
+}
+.pcol h3 .sub-date{font-weight:700;font-size:12px;color:var(--ink2)}
+.pitem{
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  width:100%;margin:0 0 28px;padding:0;background:none;border:0;
+  font:inherit;color:inherit;cursor:pointer;position:relative;z-index:1;
+}
+.pitem:hover .vig{transform:rotate(-4deg) scale(1.06)}
+.vig{
+  position:relative;width:90px;height:84px;
+  display:grid;place-items:center;
+  border:2.2px solid var(--ink);
+  border-radius:46% 54% 50% 50%/55% 45% 55% 45%;
+  box-shadow:0 3px 0 rgba(74,58,42,.1);
+  transition:transform .2s;
+}
+.vig .emo{font-size:38px;line-height:1;filter:drop-shadow(0 2px 0 rgba(0,0,0,.08))}
+.vig svg.art{width:74px;height:74px}
+.vig svg.pal{position:absolute;width:44px;height:44px;right:-20px;bottom:-10px;filter:drop-shadow(0 2px 0 rgba(74,58,42,.14))}
+.vig svg.pal.left{right:auto;left:-20px}
+.pitem .nm,.pitem .tm,.pitem .ex{background:rgba(255,255,255,.92);border-radius:6px;padding:0 5px}
+.pitem .nm{font-weight:700;font-size:13.5px;line-height:1.35;margin-top:7px}
+.pitem .tm{font-size:12.5px;color:var(--ink2);font-weight:700}
+.pitem .ex{font-size:11.5px;color:var(--ink2);line-height:1.35;margin-top:2px;max-width:165px}
+.pitem .team-tag{margin:4px 0 0}
+svg.plinks{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:0}
+.plink{fill:none;stroke:var(--ink2);stroke-width:2.2;stroke-dasharray:4 6;stroke-linecap:round}
+.pstar{fill:#F4B63F;opacity:.85}
+
+.poster-footer{
+  display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;
+  gap:16px;padding:8px 22px 0;
+}
+.poster-hint{
+  font-size:13.5px;font-weight:700;color:var(--ink2);
+  background:var(--blob2);border:2px solid var(--ink);border-radius:14px;
+  padding:8px 14px;
+}
+.tips-wrap{
+  display:flex;align-items:flex-end;gap:10px;margin-left:auto;max-width:560px;
+}
+.tips-mascots{display:flex;flex:0 0 auto}
+.tips-mascots svg{width:58px;height:58px;margin-right:-10px;filter:drop-shadow(0 2px 0 rgba(74,58,42,.12))}
+.tips{
+  background:var(--blob1);border:2.5px dashed var(--ink);border-radius:20px;
+  padding:12px 18px;font-size:13.5px;box-shadow:0 4px 0 rgba(74,58,42,.08);
+}
+.tips b{display:block;margin-bottom:4px;font-size:15px}
+.tips ul{margin:0;padding-left:1.2em}
+.tips li{margin-bottom:2px}
+@media (prefers-reduced-motion:reduce){.vig{transition:none}}
+
+/* ================= 曼谷版追加 ================= */
+:root:not([data-theme]){--bg:#FFF7DC;--land:#FFF3D0;--tan:#FFEAB0;--tan-border:#E3C068;--blob1:#FFEFB8;--yellow:#FFD24D;--red:#E8782B;--pink:#F2A24A;--road:#F7E3B0}
+:root[data-theme="river"]{--bg:#EAF6FB;--paper:#FFFFFF;--land:#EAF5F7;--ink:#1E3A4C;--ink2:#587789;--tan:#D3ECF7;--tan-border:#9CCDE3;--blob1:#D9EEF8;--blob2:#E4F7DF;--blob3:#FFF2C9;--blob4:#FFE4EC;--red:#1F7AA8;--yellow:#8FD0EA;--pink:#5BB5D6;--road:#E3F0F5;--water:#B5E0F2}
+html{scroll-behavior:smooth}
+.top-actions .chip.link{text-decoration:none}
+#bkkNow{cursor:default;font-variant-numeric:tabular-nums;background:var(--blob1)}
+#bkkNow:hover{transform:none;background:var(--blob1)}
+.day-head .badge{font-size:13.5px;font-weight:700;background:var(--blob1);border:2px dashed var(--ink);border-radius:10px;padding:3px 12px}
+.day-head .badge:first-of-type{margin-left:auto}
+.day-head .dnote{flex-basis:100%;font-size:13.5px;background:var(--blob1);border-left:5px solid var(--red);border-radius:6px;padding:5px 10px}
+.day-head .dnote.warn{background:#FFF0E3;border-left-color:#C2410C;color:#7A3410}
+.stop .t small{display:block;font-weight:500;font-size:11.5px;color:var(--ink2);line-height:1.2}
+.stop .t.txt{font-size:12px;line-height:1.3}
+.stop.mv .card{background:#F3EDFF;border-color:#8B5CF6;box-shadow:0 3px 0 rgba(139,92,246,.18)}
+.stop.mv .card .name{color:#5B34C4;font-size:15px}
+.stop.mv .card .note{color:#6B54A8}
+.stop.mv .t{color:#6D46D6}
+.stop.mv .t small{color:#8B77C9}
+.stop.mv .t::after{border-color:#8B5CF6;background:#EDE5FF}
+.stop.now.mv .card{background:var(--yellow)}
+.stop.now.mv .card .name,.stop.now.mv .card .note{color:#4A3A2A}
+.m-pin.mvpin circle.base{stroke:#8B5CF6;fill:#F3EDFF}
+.m-pin.mvpin .lab rect{stroke:#8B5CF6;fill:#F3EDFF}
+.m-pin.mvpin .lab text{fill:#5B34C4}
+.m-pin.mvpin.now circle.base{fill:var(--yellow)}
+.m-pin.mvpin.now .lab rect{fill:var(--red)}.m-pin.mvpin.now .lab text{fill:#fff}
+.card .tag.nor{background:#E5F6EC;color:#2F7D55;border-color:#2F7D55}
+.card .tag.warn{background:#FFF0E3;color:#C2410C;border-color:#C2410C}
+.card .price{display:inline-block;margin-top:5px;font-size:12.5px;background:#FFF3CF;color:#8A5A00;border-radius:8px;padding:1px 9px}
+.card .tix{margin-top:5px;font-size:12.5px;background:#EEF6FF;color:#1F4D7A;border-radius:8px;padding:2px 9px}
+.card .warnline{font-size:12.5px;color:#C2410C;margin-top:4px}
+.card details{margin-top:6px;font-size:12.5px}
+.card details>summary{cursor:pointer;font-weight:700;color:var(--ink2)}
+.card details.warn>summary{color:#C2410C}.card details.ok>summary{color:#2F7D55}
+.card details>div{margin-top:3px;background:var(--bg);border-radius:8px;padding:5px 9px;color:var(--ink)}
+.card .maps{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.mchip{font-size:12.5px;font-weight:700;text-decoration:none;border:1.5px solid var(--ink);border-radius:999px;padding:0 9px;background:var(--blob1);line-height:1.7}
+.card img.pic{display:block;max-width:100%;max-height:190px;border-radius:10px;margin-top:8px;border:2px solid var(--ink);object-fit:cover}
+.card figure.x{margin:6px 0 0}.card figure.x figcaption{font-size:11.5px;color:var(--ink2)}
+.gmrow{padding:0 16px 12px;background:var(--bg)}
+.gmrow a{display:inline-block;font-size:13px;font-weight:700;text-decoration:none;border:2px solid var(--ink);border-radius:999px;padding:2px 12px;background:var(--paper)}
+.poster .items{display:block}
+.pjump{display:none;gap:6px;overflow-x:auto;padding:0 14px 8px;scrollbar-width:none}
+.pjump button{flex:0 0 auto;font:inherit;font-size:13px;font-weight:700;border:2px solid var(--ink);border-radius:999px;background:var(--paper);color:var(--ink);padding:2px 12px;cursor:pointer;box-shadow:0 2px 0 rgba(74,58,42,.12)}
+.pjump button.on{background:var(--yellow)}
+.pswipe{display:none;text-align:center;font-size:12.5px;font-weight:700;color:var(--ink2);padding:0 14px 6px}
+@media (max-width:700px){.pswipe{display:block}}
+.info{background:var(--paper);border:3px solid var(--ink);border-radius:28px;padding:0 0 22px;box-shadow:0 8px 0 rgba(74,58,42,.09);overflow:hidden}
+.info .sec{padding:0 22px;margin-top:18px}
+.info h3{margin:0 0 8px;font-family:"Zen Maru Gothic","Huninn",sans-serif;font-size:19px}
+.rescards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.rc{background:var(--bg);border:2px solid var(--ink);border-radius:14px;padding:8px 12px;font-size:13.5px;box-shadow:0 3px 0 rgba(74,58,42,.08)}
+.rc b{font-size:15px}.rc .d{color:var(--ink2);font-size:12.5px}
+.rc .tag{margin:0 6px 0 0}
+.tipsbig ul{margin:4px 0 0;padding-left:1.2em;font-size:14px}.tipsbig li{margin:3px 0}
+.chk{list-style:none;padding:0!important}
+.chk label{display:flex;gap:8px;align-items:flex-start;cursor:pointer;margin:3px 0;font-size:14px}
+.chk input{margin-top:4px;accent-color:var(--red);width:17px;height:17px;flex:0 0 auto}
+.chk input:checked+span{text-decoration:line-through;color:var(--ink2)}
+.tbl{overflow-x:auto}.tbl table{border-collapse:collapse;font-size:12.5px;min-width:520px}
+.tbl th,.tbl td{border:1.5px solid var(--line);padding:4px 8px;text-align:left;vertical-align:top}.tbl th{background:var(--blob1)}
+footer .back{font-weight:700}
+footer{line-height:1.7}
+svg[viewBox="0 0 64 64"]{overflow:visible}
+#map{height:480px;background:var(--water);font:inherit;z-index:0}
+#map .leaflet-tile-pane{filter:saturate(.9) sepia(.08)}
+.toast{z-index:2000}
+.lpin,.lpal,.lkm{background:none;border:0}
+.lp{position:relative;width:44px;height:44px}
+.lp-c{width:38px;height:38px;margin:3px;border-radius:50%;background:var(--paper);border:3px solid var(--ink);display:grid;place-items:center;font-size:19px;line-height:1;box-shadow:0 2px 0 rgba(74,58,42,.2);transition:transform .15s}
+.lp.done .lp-c{background:var(--land);border-color:var(--ink2)}
+.lp.now .lp-c{background:var(--yellow);transform:scale(1.15)}
+.lp.mvpin .lp-c{border-color:#8B5CF6;background:#F3EDFF}
+.lp.mvpin.now .lp-c{background:var(--yellow)}
+.lp-l{position:absolute;left:50%;top:46px;transform:translateX(-50%);white-space:nowrap;background:var(--paper);border:2px solid var(--ink);border-radius:13px;padding:1px 10px;font-weight:700;font-size:13px;color:var(--ink);display:none;pointer-events:none}
+.lp.now .lp-l,.lpin:hover .lp-l,.lpin:focus .lp-l{display:block}
+.lp.now .lp-l{background:var(--red);color:#fff}
+.lpal svg{width:50px;height:50px;display:block;filter:drop-shadow(0 1.5px 0 #fff) drop-shadow(0 -1.5px 0 #fff) drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff) drop-shadow(0 3px 3px rgba(74,58,42,.18))}
+.lkm span{position:absolute;transform:translate(-50%,-50%);white-space:nowrap;font-size:13px;font-weight:700;color:var(--ink2);background:rgba(255,255,255,.88);border:1.5px solid var(--ink2);border-radius:999px;padding:0 8px}
+@media (max-width:700px){#map{height:400px}}
+#err{display:none;background:#fde8e8;border:2px solid #b91c1c;border-radius:12px;padding:12px;margin:12px 4px}
+
+@media (max-width:700px){
+  .wrap{padding:12px 10px 40px}
+  header.top{padding:12px 14px;border-radius:20px}
+  .title-mascots svg{width:40px;height:40px}
+  .title h1{font-size:23px}
+  .title p{font-size:13px}
+  .chip{padding:6px 11px;font-size:13px}
+  .m-pin .lab text{font-size:17px}
+  .m-dist{font-size:18px}
+  .m-area{font-size:36px}
+  .clock{font-size:26px}
+  .stop{grid-template-columns:62px 1fr;gap:8px}
+  ol.stops::before{left:50px}
+  .stop .t{padding-right:22px;font-size:14px}
+  .stop .t::after{left:44px}
+  .card{padding:9px 11px}
+  .poster-banner{padding:12px 14px}
+  .poster-scroll{padding:4px 0 10px;scroll-snap-type:x mandatory;scroll-padding-left:14px;-webkit-overflow-scrolling:touch}
+  .poster-grid{grid-template-columns:repeat(5,min(66vw,250px));width:max-content;min-width:0;gap:16px;padding:0 14px 8px}
+  .pcol{scroll-snap-align:start}
+  .pjump{display:flex}
+  .poster-footer{padding:8px 14px 0}
+  .tips-wrap{max-width:none;margin-left:0;width:100%}
+  .info .sec{padding:0 14px}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs id="charDefs"></defs></svg>
+
+<div class="wrap">
+  <header class="top">
+    <div class="title">
+      <div class="title-mascots" id="titleMascots" aria-hidden="true"></div>
+      <div>
+        <h1>2027 沖繩散步帖</h1>
+        <p id="headerSub">03/30（二）– 04/03（六）・台北 → 那霸 → 北部・中部・南部 → 台北・6 人同行 ✨</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <a class="chip link" href="index.html">← 回主網頁</a>
+      <button class="chip" id="brandBtn" type="button" aria-pressed="false">🎀 切換三麗鷗版</button>
+      <button class="chip" id="themeBtn" type="button">🌺 切換扶桑花粉</button>
+      <button class="chip" id="liveBtn" type="button" aria-pressed="false">🕒 對照沖繩現在時間</button>
+      <span class="chip" id="bkkNow" aria-label="沖繩當地時間">🕒 沖繩 --:--</span>
+    </div>
+  </header>
+
+  <div id="err"></div>
+  <nav class="days" id="days" role="tablist" aria-label="選擇天數"></nav>
+
+  <section class="poster" id="poster" hidden aria-label="五日攻略地圖總覽">
+    <div class="poster-banner">
+      <h2 class="poster-title" id="posterTitle">✨ 沖繩五日攻略地圖 <small>(2027年3月30日 - 4月3日)</small> ✨</h2>
+    </div>
+    <div class="pswipe">👈 左右滑動看每一天 👉</div>
+    <div class="pjump" id="pjump" aria-label="跳到某一天"></div>
+    <div class="poster-scroll" id="pscroll"><div class="poster-grid" id="pgrid"></div></div>
+    <div class="poster-footer">
+      <div class="poster-hint" id="posterHint">🐾 點擊任一景點插畫，即可跳轉至該日互動散步地圖與時間軸！</div>
+      <div class="tips-wrap">
+        <div class="tips-mascots" id="tipsMascots" aria-hidden="true"></div>
+        <div class="tips">
+          <b>💡 貼心提醒 (Tips) & 出發前清單</b>
+          <ul>
+            <li><b>出發前清單</b>：護照、Visit Japan Web、日圓現金、Suica 等交通 IC 卡、eSIM</li>
+            <li><b>三日遊集合</b>：08:20／08:10 BLUE SEAL 久茂地店，04/02 是 08:30 縣廳前；遲到不退費</li>
+            <li><b>要先訂</b>：首里城正殿 2027-01-01 13:00 開賣；素食者北部團午餐要自備；車程都是估計</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="info" id="info" hidden aria-label="預約與清單"></section>
+
+  <main class="page" id="page" hidden>
+    <div class="day-head" id="dayHead"></div>
+    <section class="mapcard" aria-label="當日小地圖">
+      <div id="map" role="region" aria-label="當日地圖"></div>
+      <div class="clockbar">
+        <div class="clock" id="clock">--:--</div>
+        <div class="status" id="status" aria-live="polite"></div>
+        <div class="ctrl">
+          <button class="play" id="playBtn" type="button" aria-label="播放">▶</button>
+          <input type="range" id="slider" min="0" max="100" step="1" aria-label="時間軸">
+          <button class="speed" id="speedBtn" type="button" aria-label="播放速度">×1</button>
+        </div>
+      </div>
+      <div class="pals" id="pals"></div>
+      <div class="scale-note" id="scaleNote">✦ 底圖：OpenStreetMap。點位為大致位置（部分店家以所在路段或附近地標代替），連線是直線示意、不是實際行車路線；公里數為直線距離。可以雙指縮放地圖。</div>
+      <div class="gmrow" id="gmRow"></div>
+    </section>
+    <section aria-label="當日行程">
+      <ol class="stops" id="stops"></ol>
+    </section>
+  </main>
+  <footer id="footerText"></footer>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const $=s=>document.getElementById(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const CHIIKAWA_PALS=[
+  {id:"pal0",name:"吉伊卡哇"},{id:"pal1",name:"小八"},{id:"pal2",name:"烏薩奇"},
+  {id:"pal3",name:"小桃"},{id:"pal4",name:"栗子饅頭"},{id:"pal5",name:"獅薩"}
+];
+const SANRIO_PALS=[
+  {id:"sanrio1",name:"Bonnie"},{id:"sanrio2",name:"酷洛米"},{id:"sanrio0",name:"大耳狗"},
+  {id:"sanrio3",name:"彼安諾"},{id:"sanrio4",name:"漢頓"},{id:"sanrio5",name:"酷企鵝"}
+];
+let brand="chiikawa";
+let PALS=CHIIKAWA_PALS;
+/* 依臉的大小對齊：烏薩奇臉在原圖較小（寬 150px，吉伊卡哇 205、小八 216），放大 1.36 倍、腳踩同一條線，耳朵會超出框上緣 */
+const PALBOX={pal2:[-16,-30.7,130.6]};
+$("charDefs").innerHTML=[...CHIIKAWA_PALS,...SANRIO_PALS].map(p=>{const [x,y,w]=PALBOX[p.id]||[2,2,96];return `<symbol id="${p.id}" viewBox="0 0 100 100" overflow="visible"><image href="images/stickers/${p.id}.png" x="${x}" y="${y}" width="${w}" height="${w}" preserveAspectRatio="xMidYMid meet"/></symbol>`}).join("");
+$("titleMascots").innerHTML=[0,1,2].map(i=>`<svg viewBox="0 0 64 64"><use href="#${PALS[i].id}"/></svg>`).join("");
+$("tipsMascots").innerHTML=[1,0].map(i=>`<svg viewBox="0 0 64 64"><use href="#${PALS[i].id}"/></svg>`).join("");
+
+const DOODLE={
+  castle:`<g><path d="M-30 30 L-24 6 H24 L30 30Z" fill="#D5C7B2" stroke="#4A3A2A" stroke-width="2.4"/>
+    <rect x="-18" y="-10" width="36" height="16" fill="#FFFDF7" stroke="#4A3A2A" stroke-width="2.4"/>
+    <path d="M-28 -8 Q0 -20 28 -8 L22 -14 H-22Z" fill="#5CA88A" stroke="#4A3A2A" stroke-width="2.4"/>
+    <rect x="-11" y="-28" width="22" height="14" fill="#FFFDF7" stroke="#4A3A2A" stroke-width="2.4"/>
+    <path d="M-19 -26 Q0 -38 19 -26 L13 -32 H-13Z" fill="#5CA88A" stroke="#4A3A2A" stroke-width="2.4"/>
+    <circle cx="0" cy="-37" r="3" fill="#FFD95A" stroke="#4A3A2A" stroke-width="1.5"/></g>`,
+  tower:`<g><path d="M-14 34 L-5 -22 H5 L14 34" fill="none" stroke="#FF6B6B" stroke-width="3.2"/>
+    <path d="M-11 18 H11 M-8 0 H8 M-12 26 L8 0 M12 26 L-8 0" stroke="#FF6B6B" stroke-width="2.2"/>
+    <rect x="-10" y="-34" width="20" height="14" rx="3" fill="#FFFDF7" stroke="#4A3A2A" stroke-width="2.5"/>
+    <path d="M0 -34 V-46" stroke="#4A3A2A" stroke-width="2.5"/></g>`,
+  ferris:`<g><path d="M-14 34 L0 0 L14 34" stroke="#4A3A2A" stroke-width="3" fill="none"/>
+    <circle r="28" fill="none" stroke="#FF6B6B" stroke-width="3.5"/>
+    <path d="M-28 0 H28 M0 -28 V28 M-20 -20 L20 20 M20 -20 L-20 20" stroke="#FF6B6B" stroke-width="1.5"/>
+    <g fill="#FFD95A" stroke="#4A3A2A" stroke-width="1.5"><circle cx="0" cy="-28" r="4"/><circle cx="28" cy="0" r="4"/><circle cx="-28" cy="0" r="4"/><circle cx="20" cy="20" r="4"/><circle cx="-20" cy="-20" r="4"/><circle cx="20" cy="-20" r="4"/><circle cx="-20" cy="20" r="4"/></g></g>`,
+  torii:`<g><path d="M-26 -22 Q0 -30 26 -22 L24 -15 Q0 -21 -24 -15Z" fill="#FF6B6B" stroke="#4A3A2A" stroke-width="2.2"/>
+    <rect x="-20" y="-11" width="40" height="5" fill="#FF6B6B" stroke="#4A3A2A" stroke-width="2"/><rect x="-17" y="-15" width="5.5" height="44" fill="#FF6B6B" stroke="#4A3A2A" stroke-width="2"/><rect x="11.5" y="-15" width="5.5" height="44" fill="#FF6B6B" stroke="#4A3A2A" stroke-width="2"/></g>`,
+  torii3:``,
+  plane:`<g transform="rotate(-16)"><path d="M-32 0 Q-32 -8 -20 -8 H24 Q36 -8 36 0 Q36 8 24 8 H-20 Q-32 8 -32 0Z" fill="#FFFDF7" stroke="#4A3A2A" stroke-width="2.5"/>
+    <path d="M-2 -7 L-14 -27 H-5 L12 -7Z M-2 7 L-14 27 H-5 L12 7Z M-26 -6 L-33 -17 H-26 L-18 -6Z" fill="#A9D4EF" stroke="#4A3A2A" stroke-width="2.2"/>
+    <circle cx="-8" cy="-1" r="2.2" fill="#6CAAD9"/><circle cx="2" cy="-1" r="2.2" fill="#6CAAD9"/><circle cx="12" cy="-1" r="2.2" fill="#6CAAD9"/></g>`,
+  bus:`<g><rect x="-28" y="-14" width="56" height="28" rx="7" fill="#FFD95A" stroke="#4A3A2A" stroke-width="2.5"/>
+    <rect x="-22" y="-9" width="13" height="11" rx="2" fill="#FFFDF7" stroke="#4A3A2A" stroke-width="2"/>
+    <rect x="-5" y="-9" width="13" height="11" rx="2" fill="#FFFDF7" stroke="#4A3A2A" stroke-width="2"/>
+    <rect x="12" y="-9" width="11" height="11" rx="2" fill="#FFFDF7" stroke="#4A3A2A" stroke-width="2"/>
+    <circle cx="-15" cy="15" r="5.5" fill="#4A3A2A"/><circle cx="15" cy="15" r="5.5" fill="#4A3A2A"/>
+    <circle cx="-15" cy="15" r="2" fill="#FFFDF7"/><circle cx="15" cy="15" r="2" fill="#FFFDF7"/></g>`,
+  hotel:`<g><rect x="-22" y="-24" width="44" height="50" rx="3" fill="#F5E1BE" stroke="#4A3A2A" stroke-width="2.5"/>
+    <rect x="-15" y="-31" width="30" height="8" rx="2" fill="#FF6B6B" stroke="#4A3A2A" stroke-width="2"/>
+    <g fill="#A9D4EF" stroke="#4A3A2A" stroke-width="1.8">
+      <rect x="-15" y="-17" width="8" height="8" rx="1"/><rect x="-4" y="-17" width="8" height="8" rx="1"/><rect x="7" y="-17" width="8" height="8" rx="1"/>
+      <rect x="-15" y="-4" width="8" height="8" rx="1"/><rect x="-4" y="-4" width="8" height="8" rx="1"/><rect x="7" y="-4" width="8" height="8" rx="1"/>
+    </g>
+    <rect x="-6" y="11" width="12" height="15" fill="#9E5727" stroke="#4A3A2A" stroke-width="2"/></g>`,
+  ship:`<g><path d="M-30 4 H30 L22 18 H-22Z" fill="#FF6B6B" stroke="#4A3A2A" stroke-width="2.4"/>
+    <rect x="-16" y="-10" width="30" height="14" fill="#FFFDF7" stroke="#4A3A2A" stroke-width="2.4"/>
+    <rect x="4" y="-22" width="8" height="12" fill="#FFD95A" stroke="#4A3A2A" stroke-width="2.4"/></g>`,
+  coaster:`<g><path d="M-48 20 Q-36 -30 -18 4 Q0 34 14 -14 Q26 -40 48 10" fill="none" stroke="#FF6B6B" stroke-width="4" stroke-linecap="round"/>
+    <path d="M-36 14 V30 M-18 6 V30 M0 20 V30 M14 -10 V30 M30 -20 V30" stroke="#4A3A2A" stroke-width="2"/>
+    <path d="M-52 30 H52" stroke="#4A3A2A" stroke-width="2.5"/></g>`,
+  pagoda:`<g><path d="M0 -44 V-34" stroke="#4A3A2A" stroke-width="2.5"/>
+    ${[0,1,2].map(i=>`<path d="M${-14-i*4} ${-30+i*18} Q0 ${-38+i*18} ${14+i*4} ${-30+i*18} L${10+i*3} ${-24+i*18} H${-10-i*3}Z" fill="#7B6756" stroke="#4A3A2A" stroke-width="2.2"/><rect x="${-8-i*2}" y="${-24+i*18}" width="${16+i*4}" height="12" fill="#FF6B6B" stroke="#4A3A2A" stroke-width="1.8"/>`).join("")}</g>`,
+  tree:`<g><rect x="-2.5" y="4" width="5" height="12" fill="#8A6A48"/><circle r="12" fill="#8CC57A" stroke="#4A3A2A" stroke-width="2.2"/></g>`,
+  maple:`<g><rect x="-2.5" y="4" width="5" height="12" fill="#8A6A48"/><circle r="12" fill="#F08A3C" stroke="#4A3A2A" stroke-width="2.2"/><circle cx="7" cy="-6" r="5" fill="#FF6B6B"/></g>`,
+  bag:`<g><path d="M-18 -2 H2 L4 22 H-20Z" fill="#FF9EB5" stroke="#4A3A2A" stroke-width="2.2"/>
+    <path d="M-12 -2 Q-12 -12 -8 -12 Q-4 -12 -4 -2" fill="none" stroke="#4A3A2A" stroke-width="2.2"/>
+    <path d="M0 -6 H20 L22 20 H-2Z" fill="#FFD95A" stroke="#4A3A2A" stroke-width="2.2"/>
+    <path d="M6 -6 Q6 -16 10 -16 Q14 -16 14 -6" fill="none" stroke="#4A3A2A" stroke-width="2.2"/></g>`,
+  lantern:`<g><rect x="-11" y="-16" width="22" height="30" rx="9" fill="#FF6B6B" stroke="#4A3A2A" stroke-width="2.2"/><path d="M-11 -6 H11 M-11 4 H11" stroke="#4A3A2A" stroke-width="1.8"/><rect x="-6" y="-20" width="12" height="4" fill="#4A3A2A"/><rect x="-6" y="14" width="12" height="4" fill="#4A3A2A"/></g>`,
+  cloud:`<g opacity=".92"><path d="M-30 8 Q-32 -6 -18 -6 Q-14 -20 2 -16 Q12 -24 22 -12 Q34 -12 32 2 Q34 10 24 10 H-24 Q-32 10 -30 8Z" fill="#FFFFFF" stroke="#C5B49E" stroke-width="2"/></g>`,
+  sparkle:`<g fill="#F4B63F"><path d="M0 -9 L2.2 -2.2 L9 0 L2.2 2.2 L0 9 L-2.2 2.2 L-9 0 L-2.2 -2.2 Z"/></g>`
+};
+DOODLE.torii3=`<g>${[0,1,2].map(i=>`<g transform="translate(${-26+i*20},${i*-6}) scale(${.6+i*.12})">${DOODLE.torii}</g>`).join("")}</g>`;
+
+const waves=(pts)=>pts.map(([x,y])=>`<path class="bg-wave" d="M${x} ${y} q8 -7 16 0 t16 0"/>`).join("");
+const mts=(list)=>list.map(([x,y,w,h])=>`<path class="bg-mt" d="M${x-w/2} ${y} Q${x-w/5} ${y-h*.9} ${x} ${y-h} Q${x+w/5} ${y-h*.9} ${x+w/2} ${y}Z"/>`).join("");
+const dood=(list)=>list.map(([t,x,y,sc=1])=>`<g transform="translate(${x},${y}) scale(${sc})">${DOODLE[t]}</g>`).join("");
+const lbls=(list)=>list.map(([t,x,y])=>`<text class="bg-lbl" x="${x}" y="${y}" text-anchor="middle">${t}</text>`).join("");
+const area=(list)=>list.map(([t,x,y])=>`<text class="m-area" x="${x}" y="${y}" text-anchor="middle">${t}</text>`).join("");
+Object.assign(DOODLE,{
+  wave:`<g><circle cx="22" cy="-22" r="10" fill="#FFD95A" stroke="#4A3A2A" stroke-width="2.2"/><path d="M-40 4 Q-30 -10 -20 4 T0 4 T20 4 T40 4 V26 H-40Z" fill="#7FD3E6" stroke="#4A3A2A" stroke-width="2.4" stroke-linejoin="round"/><path d="M-34 16 q6 -5 12 0 M0 16 q6 -5 12 0" fill="none" stroke="#FFFDF7" stroke-width="2.2" stroke-linecap="round"/></g>`,
+  prang:`<g><path d="M0 -46 V-38" stroke="#4A3A2A" stroke-width="2.5"/><path d="M0 -38 L7 -22 L12 -22 L10 -8 L16 -8 L20 30 H-20 L-16 -8 L-10 -8 L-12 -22 L-7 -22Z" fill="#FFD95A" stroke="#4A3A2A" stroke-width="2.4" stroke-linejoin="round"/><path d="M-8 30 V13 Q0 3 8 13 V30" fill="#FFFDF7" stroke="#4A3A2A" stroke-width="2"/></g>`,
+  tuktuk:`<g><path d="M-26 -4 Q0 -26 26 -4Z" fill="#38B27E" stroke="#4A3A2A" stroke-width="2.4"/><rect x="-27" y="-4" width="54" height="20" rx="5" fill="#FFD95A" stroke="#4A3A2A" stroke-width="2.4"/><circle cx="-14" cy="19" r="6" fill="#4A3A2A"/><circle cx="14" cy="19" r="6" fill="#4A3A2A"/><circle cx="-14" cy="19" r="2" fill="#FFFDF7"/><circle cx="14" cy="19" r="2" fill="#FFFDF7"/></g>`,
+  palm:`<g><path d="M0 30 Q-4 6 4 -14" stroke="#8A6A48" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M4 -14 Q-14 -26 -26 -12 M4 -14 Q-6 -34 -20 -30 M4 -14 Q14 -34 28 -26 M4 -14 Q22 -22 30 -8" fill="none" stroke="#4CAF6A" stroke-width="6" stroke-linecap="round"/></g>`,
+  boat:`<g><path d="M-34 6 Q0 18 34 0 L30 -4 Q0 8 -30 0Z" fill="#9E5727" stroke="#4A3A2A" stroke-width="2.4" stroke-linejoin="round"/><path d="M30 -2 L46 -10" stroke="#4A3A2A" stroke-width="3" stroke-linecap="round"/><path d="M-8 -2 V-16 H10 V0" fill="#FFD95A" stroke="#4A3A2A" stroke-width="2.2"/></g>`,
+  lotus:`<g><path d="M-4 14 Q-26 6 -26 -10 Q-8 -8 -4 14Z" fill="#FFC2D2" stroke="#4A3A2A" stroke-width="2"/><path d="M4 14 Q26 6 26 -10 Q8 -8 4 14Z" fill="#FFC2D2" stroke="#4A3A2A" stroke-width="2"/><path d="M0 14 Q-14 -2 0 -24 Q14 -2 0 14Z" fill="#FF9EB5" stroke="#4A3A2A" stroke-width="2.2"/></g>`,
+  mango:`<g><ellipse rx="14" ry="19" transform="rotate(20)" fill="#FFC233" stroke="#4A3A2A" stroke-width="2.3"/><path d="M2 -17 q10 -8 17 0 q-9 8 -17 0z" fill="#4CAF6A" stroke="#4A3A2A" stroke-width="2"/></g>`
+});
+
+/* ---------- 讀 index.html 的資料（唯讀） ---------- */
+let DAYS=[],X=null,ALTROWS=[];
+const mq=matchMedia("(max-width:700px)");
+let W=1000,H=680;
+const reduced=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const NS="http://www.w3.org/2000/svg";
+const el=(tag,attrs={},parent)=>{const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e};
+const toMin=t=>{const [h,m]=t.split(":").map(Number);return h*60+m};
+const fmt=m=>{m=Math.max(0,Math.round(m));return String(Math.floor(m/60)%24).padStart(2,"0")+":"+String(m%60).padStart(2,"0")};
+const trunc=(s,n)=>{const max=n*2;let u=0,o="";for(const ch of String(s)){const w=ch.charCodeAt(0)>255?2:1;if(u+w>max)return o.trimEnd()+"…";u+=w;o+=ch}return o};
+const AREA={1:"台北 → 那霸・首里",2:"北部",3:"中部",4:"南部",5:"那霸 → 台北"};
+
+function fail(msg){const e=$("err");e.style.display="block";e.innerHTML=msg+'　<a href="index.html">先看主網頁行程表</a>'}
+fetch("index.html",{cache:"no-cache"}).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.text()}).then(html=>{
+  const a=html.indexOf("const D=[");const b=html.indexOf("const nav=document",a);
+  if(a<0||b<0)throw new Error("找不到資料區段（index.html 結構可能改了）");
+  const names="D,RES,PIC,DAYPIC,PL,HOURS,HLAB,HNOTE,NORSV,PRICE,NOPIC,BACKUP,BKPLACE,BKIMG,TIX,EXTRA,mapUrl,clean";
+  X=new Function(html.slice(a,b)+";\nreturn {"+names+"}")();
+  const i=html.indexOf("const ALT=[");
+  if(i>=0){try{ALTROWS=new Function(html.slice(i,html.indexOf("\n",i))+";return ALT")()}catch(e){ALTROWS=[]}}
+  init();
+}).catch(e=>fail("讀不到行程資料（"+esc(e.message)+"）。若是直接用檔案開啟請改用網址，或確認 index.html 在同一個資料夾。"));
+
+/* ---------- 把 D 轉成範例的資料格式 ---------- */
+const find=(arr,t)=>arr.find(r=>t.includes(r[0]));
+function iconOf(k,t){
+  if(k==="move")return /起飛|機場|報到|入境/.test(t)?"✈️":/渡|搭船|船/.test(t)?"⛴️":"🚐";
+  if(/飯店|入住|寄放行李|OMO5|退房/.test(t)&&k!=="eat")return "🏨";
+  if(/泳池/.test(t))return "🏊";
+  if(/首里城/.test(t))return "🏯";
+  if(/波上宮/.test(t))return "⛩️";
+  if(/達摩寺|寺/.test(t))return "🛕";
+  if(/水族館/.test(t))return "🐋";
+  if(/萬座毛|岬|海灘|大橋|瀨長島/.test(t))return "🌊";
+  if(/植物/.test(t))return "🌺";
+  if(/玉泉洞/.test(t))return "🪨";
+  if(/泰服/.test(t))return "👘";
+  if(/美術館|Dib/.test(t))return "🎨";
+  if(/AETHER|酒吧|夜間/.test(t))return "🍸";
+  if(/按摩/.test(t))return "💆";
+  if(/AEON|PARCO|Outlet|ASHIBINAA|美國村|嘉手納|逛/.test(t))return "🛍️";
+  if(/咖啡|Coffee|Cafe/i.test(t)&&k==="eat")return "☕";
+  if(k==="eat")return "🍴";
+  if(k==="rest")return "🛏️";
+  return "⭐";
+}
+function buildDays(){
+  const {D,RES,NORSV}=X;
+  return D.map(d=>{
+    let last=null,lastEnd=0;
+    const stops=d.items.map(([tstr,title,k,n,link,w])=>{
+      k=k||"rest";
+      const ts=[...String(tstr).matchAll(/(\d{1,2}):(\d{2})/g)].map(m=>+m[1]*60+ +m[2]);
+      let m,e=null;
+      if(ts.length){m=ts[0];if(/^至/.test(tstr))m-=45;if(ts[1]!=null)e=ts[1]}
+      else m=/深夜/.test(tstr)?lastEnd+60:/晚上/.test(tstr)?Math.max(lastEnd+30,22*60):lastEnd+30;
+      if(last!=null&&m<last){m=(last-m>600)?m+1440:last}
+      if(e!=null){while(e<m)e+=1440}
+      last=m;lastEnd=e!=null?e:m;
+      const c=X.clean(title)||title;
+      const nor=find(NORSV,title);
+      const res=RES.find(r=>{const base=r[1].split("（")[0].trim().split(/\s+/).slice(0,2).join(" ");return title.includes(base)});
+      return {t:fmt(m),t2:e!=null?fmt(e):"",tstr:String(tstr),m,endm:e,icon:iconOf(k,title),name:title,short:trunc(c.split(/[，、]/)[0],10),kind:k,mv:k==="move",note:n||"",link:link||"",warn:w||"",nor:nor?nor[1]:"",res:res?res[0]:""};
+    });
+    stops.forEach((s,i)=>{
+      if(s.mv)return;
+      let sum=0,j=i-1,km=0;
+      while(j>=0&&stops[j].mv){
+        const t=stops[j].note, mn=t.match(/約 ?(\d+)(?:[–-](\d+))? ?分/), hr=t.match(/約 ?(\d+) ?小時/), kk=t.match(/約 ?(\d+(?:\.\d+)?) ?公里/);
+        sum+=mn?+(mn[2]||mn[1]):hr?+hr[1]*60:(stops[j].endm!=null?stops[j].endm-stops[j].m:0);
+        if(kk&&!km)km=+kk[1];
+        j--;
+      }
+      if(sum>0)s.travel=sum;
+      if(km)s.km=km;
+    });
+    const nodeIdx=(()=>{const r=stops.map((s,i)=>i).filter(i=>!stops[i].mv);return r.length>=3?r:stops.map((s,i)=>i)})();
+    nodeIdx.forEach(i=>{const s=stops[i],ll=locOf(s.name,d.no,s.m);if(ll)s.p=[ll[1],ll[0]]});
+    return {no:d.no,date:"2027-"+d.date.replace("/","-"),dstr:d.date,wd:d.wd,title:d.title,area:AREA[d.no]||d.title,stay:d.stay||[],note:d.note||"",hnote:X.HNOTE[d.no]||"",stops,_nodeIdx:nodeIdx,_src:d};
+  });
+}
+/* ---------- 座標 [緯度, 經度]：依地名粗估的大致位置（未逐一用地圖核對），只用來畫示意地圖 ---------- */
+const LOC={tpe:[25.0793,121.2346],oka:[26.2064,127.6465],omo:[26.2178,127.6797]};
+const PLACES=[
+  [/桃園|起飛，台北/,LOC.tpe],
+  [/單軌電車　縣廳前站/,[26.2147,127.6795]],
+  [/起飛|機場|入境|報到/,LOC.oka],
+  [/前往首里/,[26.2195,127.7253]],
+  [/首里そば/,[26.2193,127.7215]],
+  [/達摩寺/,[26.2198,127.7224]],
+  [/首里城/,[26.2170,127.7195]],
+  [/PARCO CITY/,[26.2582,127.6979]],
+  [/BLUE SEAL|那霸縣廳前|集合點/,[26.2149,127.6800]],
+  [/萬座毛/,[26.5050,127.8501]],
+  [/古宇利/,[26.6930,128.0195]],
+  [/美麗海水族館/,[26.6943,127.8779]],
+  [/美國村/,[26.3163,127.7577]],
+  [/國際通/,[26.2153,127.6880]],
+  [/嘉手納/,[26.3610,127.7684]],
+  [/東南植物樂園/,[26.3612,127.8051]],
+  [/BANTA/,[26.3907,127.7258]],
+  [/殘波岬/,[26.4396,127.7130]],
+  [/AEON MALL|來客夢/,[26.3151,127.7965]],
+  [/牧志公設市場/,[26.2140,127.6895]],
+  [/知念岬/,[26.1633,127.8253]],
+  [/新原海灘/,[26.1373,127.7899]],
+  [/玉泉洞/,[26.1405,127.7486]],
+  [/糸滿漁市場/,[26.1310,127.6620]],
+  [/ASHIBINAA|iias/,[26.1734,127.6564]],
+  [/瀨長島/,[26.1760,127.6420]],
+  [/ゆうなんぎい/,[26.2160,127.6830]],
+  [/波上宮/,[26.2208,127.6713]]
+];
+function locOf(title,no,m){
+  if(/飯店|退房|OMO5|入住|寄放/.test(title)&&!/機場/.test(title))return LOC.omo;
+  const h=PLACES.find(r=>r[0].test(title));return h?h[1]:null;
+}
+const LL=p=>L.latLng(p.y,p.x);
+const hav=(a,b)=>{const t=Math.PI/180,dl=(b.y-a.y)*t,dg=(b.x-a.x)*t,h=Math.sin(dl/2)**2+Math.cos(a.y*t)*Math.cos(b.y*t)*Math.sin(dg/2)**2;return 2*6371*Math.asin(Math.sqrt(h))};
+const cssVar=(n,f)=>getComputedStyle(document.documentElement).getPropertyValue(n).trim()||f;
+
+/* ---------- 地圖／時間軸（範例邏輯） ---------- */
+function layout(day){
+  const nodes=new Map();
+  day.stops.forEach(s=>{delete s.node;if(s.p){const k=s.p.join(",");if(!nodes.has(k))nodes.set(k,{x:s.p[0],y:s.p[1],stops:[]});s.node=nodes.get(k);s.node.stops.push(s)}});
+  day._nodes=[...nodes.values()];
+  day._teams=[{id:null,name:"",pals:[0,1,2,3]}].map((tm,ti)=>{
+    const stops=day.stops;
+    let last=null;const refs=stops.map(s=>{if(s.node)last=s.node;return last});
+    for(let i=0;i<refs.length;i++)if(!refs[i])refs[i]=stops.find(s=>s.node).node;
+    const segs=[];
+    for(let i=1;i<stops.length;i++){
+      const a=refs[i-1],b=refs[i];
+      if(a===b){segs.push(null);continue}
+      const mx=(a.x+b.x)/2,my=(a.y+b.y)/2,dx=b.x-a.x,dy=b.y-a.y,sg=(i+ti)%2?1:-1;
+      segs.push({a,b,c:{x:mx-dy*0.16*sg,y:my+dx*0.16*sg},km:stops[i].km});
+    }
+    return {...tm,ti,stops,refs,segs};
+  });
+  day._start=day.stops[0].m-20;day._end=Math.max(...day.stops.map(s=>s.m))+60;
+}
+const bez=(s,t)=>{const u=1-t;return {x:u*u*s.a.x+2*u*t*s.c.x+t*t*s.b.x,y:u*u*s.a.y+2*u*t*s.c.y+t*t*s.b.y}};
+function stateAt(tm,m){
+  const S=tm.stops,R=tm.refs;
+  if(m<=S[0].m)return {p:R[0],idx:0,moving:false};
+  for(let i=0;i<S.length-1;i++){
+    const a=S[i],b=S[i+1];
+    if(m<b.m){
+      const seg=tm.segs[i];
+      if(!seg)return {p:R[i],idx:i,moving:false};
+      const gap=b.m-a.m,tr=Math.max(1,Math.min(b.travel||Math.min(30,gap),gap)),dep=b.m-tr;
+      if(m<dep)return {p:R[i],idx:i,moving:false};
+      const f=(m-dep)/tr,e=f<.5?2*f*f:1-((-2*f+2)**2)/2;
+      return {p:bez(seg,e),idx:i,moving:true,next:i+1,f:e};
+    }
+  }
+  return {p:R[S.length-1],idx:S.length-1,moving:false};
+}
+
+let dayIdx=0,cur=0,playing=false,speed=1,live=false,lastTs=0,palEls=[],pathEls=[],pinEls=[],posterOn=false,infoOn=false;
+const SPEEDS=[1,2,4];
+const bkkNow=()=>{
+  const p=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Tokyo",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).formatToParts(new Date());
+  const g=t=>p.find(x=>x.type===t).value;
+  return {date:`${g("year")}-${g("month")}-${g("day")}`,min:(+g("hour")%24)*60+ +g("minute")+ +g("second")/60,hms:`${String(+g("hour")%24).padStart(2,"0")}:${g("minute")}:${g("second")}`,md:`${+g("month")}/${+g("day")}`};
+};
+function tickClock(){const n=bkkNow();$("bkkNow").textContent=`🕒 沖繩 ${n.md} ${n.hms}`}
+
+function setAria(sel){document.querySelectorAll(".ticket").forEach(t=>t.setAttribute("aria-selected",t.id===sel?"true":"false"))}
+function renderTabs(){
+  const nav=$("days");nav.innerHTML="";
+  const today=bkkNow().date;
+  const mk=(id,html,fn)=>{const b=document.createElement("button");b.type="button";b.className="ticket";b.id=id;b.setAttribute("role","tab");b.innerHTML=html;b.onclick=fn;nav.appendChild(b);return b};
+  mk("tabAll",`<b>🗺️ 總覽</b><span>${brand==="sanrio"?"三麗鷗":"吉伊卡哇"}五日地圖</span>`,showPoster);
+  DAYS.forEach((d,i)=>{
+    const [mo,da]=d.dstr.split("/");
+    mk("tab"+i,`<b><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#${PALS[i%6].id}"/></svg>Day ${d.no}</b><span>${+mo}/${+da}（${d.wd}）${d.area.split(" ")[0]}</span>`+(d.date===today?`<i class="today">今天</i>`:""),()=>{setLive(false);selectDay(i)});
+  });
+  mk("tabInfo",`<b>📋 預約・清單</b><span>重點預約與出發前清單</span>`,showInfo);
+  setAria(infoOn?"tabInfo":posterOn?"tabAll":"tab"+dayIdx);
+}
+function hideAll(){$("poster").hidden=true;$("info").hidden=true;$("page").hidden=true;posterOn=false;infoOn=false}
+
+function selectDay(i,keepTime){
+  dayIdx=i;pause();hideAll();$("page").hidden=false;setAria("tab"+i);
+  const d=DAYS[i];layout(d);
+  if(!keepTime)cur=d.stops[0].m;
+  const [mo,da]=d.dstr.split("/");
+  $("dayHead").innerHTML=`<h2><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#${PALS[i%6].id}"/></svg>Day ${d.no}：${esc(d.title)}</h2><span class="meta">${d.dstr}（${d.wd}）・${esc(d.area)}</span>${d.stay.map(s=>`<span class="badge">${esc(s)}</span>`).join("")}${d.note?`<div class="dnote">${esc(d.note)}</div>`:""}${d.hnote?`<div class="dnote warn">📅 ${esc(d.hnote)}</div>`:""}`;
+  renderMap(d,i);renderList(d);
+  const sl=$("slider");sl.min=d._start;sl.max=d._end;sl.value=cur;
+  update();
+}
+
+let lmap=null,lLayer=null;
+function ensureMap(){
+  if(lmap)return;
+  lmap=L.map("map",{scrollWheelZoom:false,dragging:!L.Browser.mobile,tap:false,zoomSnap:.5});
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> 貢獻者'}).addTo(lmap);
+  lLayer=L.layerGroup().addTo(lmap);
+}
+function renderMap(d,i){
+  ensureMap();lLayer.clearLayers();lmap.invalidateSize();
+  const red=cssVar("--red","#E8782B");
+  pathEls=[];
+  d._teams.forEach(tm=>{
+    tm.segs.forEach((s,k)=>{
+      if(!s){pathEls.push(null);return}
+      const pts=[];for(let j=0;j<=32;j++)pts.push(LL(bez(s,j/32)));
+      L.polyline(pts,{color:"#7D6A55",weight:3,dashArray:"3 8",lineCap:"round",opacity:.6,interactive:false}).addTo(lLayer);
+      const walked=L.polyline([],{color:red,weight:4.5,dashArray:"3 8",lineCap:"round",opacity:.95,interactive:false}).addTo(lLayer);
+      pathEls.push({walked,s,tm,k,last:-1});
+      const km=hav(s.a,s.b);
+      if(km>=2)L.marker(LL(bez(s,.5)),{icon:L.divIcon({className:"lkm",html:`<span>直線約 ${km<20?km.toFixed(1):Math.round(km).toLocaleString()} km</span>`,iconSize:[0,0]}),interactive:false,keyboard:false}).addTo(lLayer);
+    });
+  });
+  pinEls=[];
+  d._nodes.forEach(n=>{
+    const s0=n.stops[0];
+    const label=n.stops.map(s=>s.short).filter((v,idx,a)=>a.indexOf(v)===idx).join("・");
+    let txt=`${s0.t} ${label}`;if(txt.length>20)txt=txt.slice(0,19)+"…";
+    const mk=L.marker(LL(n),{title:n.stops.map(s=>s.t+" "+s.short).join("、"),icon:L.divIcon({className:"lpin",html:`<div class="lp${n.stops.every(s=>s.mv)?" mvpin":""}"><div class="lp-c">${s0.icon}</div><div class="lp-l">${esc(txt)}</div></div>`,iconSize:[44,44],iconAnchor:[22,22]})}).addTo(lLayer);
+    mk.on("click",()=>{setLive(false);pause();cur=s0.m;update();scrollToStop(s0)});
+    pinEls.push({n,mk});
+  });
+  palEls=[];
+  d._teams.forEach(tm=>tm.pals.forEach((pi,k)=>{
+    const mk=L.marker(LL(tm.refs[0]),{icon:L.divIcon({className:"lpal",html:`<svg viewBox="0 0 64 64" aria-hidden="true"><use href="#${PALS[pi].id}"/></svg>`,iconSize:[50,50],iconAnchor:[25,44]}),interactive:false,keyboard:false,zIndexOffset:2000}).addTo(lLayer);
+    palEls.push({mk,tm,k,n:tm.pals.length});
+  }));
+  const b=L.latLngBounds(d._nodes.map(n=>LL(n)));
+  const fit=()=>{lmap.invalidateSize();if(b.isValid())lmap.fitBounds(b,{padding:mq.matches?[40,40]:[60,60],maxZoom:15,animate:false})};
+  fit();requestAnimationFrame(fit);
+}
+function scrollToStop(s){
+  const d=DAYS[dayIdx];const li=document.querySelector(`.stop[data-i="${d.stops.indexOf(s)}"]`);
+  if(li&&!mq.matches)li.scrollIntoView({block:"center",behavior:reduced?"auto":"smooth"});
+}
+
+function renderList(d){
+  const {HOURS,HLAB,TIX,PRICE,BACKUP,BKPLACE,BKIMG,EXTRA,PL,PIC,mapUrl}=X;
+  const ol=$("stops");ol.innerHTML="";
+  d.stops.forEach((s,i)=>{
+    const li=document.createElement("li");li.className="stop"+(s.mv?" mv":"");li.dataset.i=i;
+    const title=s.name;
+    const tags=(s.res?`<span class="tag hot">需預約・${esc(s.res)}</span>`:"")+(s.nor?`<span class="tag nor">${esc(s.nor)}</span>`:"")+(s.warn?`<span class="tag warn">待確認</span>`:"");
+    const pr=s.mv?null:find(PRICE,title),hr=find(HOURS,title),tx=find(TIX,title);
+    const bkk=Object.keys(BACKUP).find(x=>title.includes(x));
+    const chips=(()=>{const h=find(PL,title);if(h)return h[1].map(nm=>`<a class="mchip" href="${esc(mapUrl(nm,d.no))}" target="_blank" rel="noopener">📍 ${esc(nm)}</a>`).join("");
+      return s.link?`<a class="mchip" href="${esc(s.link)}" target="_blank" rel="noopener">📍 Google 地圖</a>`:""})();
+    const bk=bkk?`<details><summary>備案（${BACKUP[bkk].length}）</summary>${BKIMG[bkk]?`<figure class="x"><img class="pic" loading="lazy" referrerpolicy="no-referrer" alt="${esc(BKIMG[bkk].cap)}" src="${esc(BKIMG[bkk].src)}"><figcaption>${esc(BKIMG[bkk].cap)}</figcaption></figure>`:""}${BACKUP[bkk].map((x,k)=>`<div>${esc(x)}${((BKPLACE[bkk]||[])[k]||[]).length?`<div class="maps">${BKPLACE[bkk][k].map(nm=>`<a class="mchip" href="${esc(mapUrl(nm,0))}" target="_blank" rel="noopener">📍 ${esc(nm)}</a>`).join("")}</div>`:""}</div>`).join("")}</details>`:"";
+    const pk=s.mv?"":Object.keys(PIC).find(n=>title.includes(n));
+    const pic=pk?`<a href="${esc(PIC[pk])}" target="_blank" rel="noopener"><img class="pic" loading="lazy" referrerpolicy="no-referrer" alt="${esc(pk)}" src="${esc(PIC[pk])}"></a>`:"";
+    const ek=s.mv?"":Object.keys(EXTRA).find(n=>title.includes(n));
+    const ex=ek?EXTRA[ek].map(([c,u])=>`<figure class="x"><img class="pic" loading="lazy" referrerpolicy="no-referrer" alt="${esc(c)}" src="${esc(u)}"><figcaption>${esc(c)}</figcaption></figure>`).join(""):"";
+    const tHtml=(/\d:\d\d/.test(s.tstr)?`${s.t}${s.t2?`<small>–${s.t2}</small>`:""}`:`<span class="txt">${esc(s.tstr)}</span>`);
+    li.innerHTML=`<div class="t">${tHtml}</div><div><div class="card" role="button" tabindex="0">
+      <div class="name"><span aria-hidden="true">${s.icon}</span><span>${esc(title)}</span></div>
+      ${s.note?`<div class="note">${esc(s.note)}</div>`:""}${tags}
+      ${s.warn?`<div class="warnline">${esc(s.warn)}</div>`:""}
+      ${pr?`<div class="price">每人均價：${esc(pr[1])}</div>`:""}${tx?`<div class="tix">🎫 ${esc(tx[1])}</div>`:""}
+      ${hr?`<details class="${esc(hr[1])}"><summary>🕘 ${esc(HLAB[hr[1]])}</summary><div>${esc(hr[2])}</div></details>`:""}${bk}
+      ${chips?`<div class="maps">${chips}</div>`:""}${pic}${ex}
+    </div></div>`;
+    const card=li.querySelector(".card");
+    const go=e=>{if(e.target.closest("a,summary,details"))return;setLive(false);pause();cur=s.m;update()};
+    card.addEventListener("click",go);card.addEventListener("keydown",e=>{if(e.target!==card)return;if(e.key==="Enter"||e.key===" "){e.preventDefault();go(e)}});
+    ol.appendChild(li);
+  });
+  const chip=pi=>`<span class="pal-chip"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#${PALS[pi].id}"/></svg>${PALS[pi].name}</span>`;
+  $("pals").innerHTML="<b>今日同行夥伴（4 人）：</b>"+[0,1,2,3].map(chip).join("");
+  // 整天路線
+  const names=[];d._src.items.forEach(it=>{if(it[2]==="move")return;const h=find(PL,it[1]);if(h&&h[1].length)names.push(h[1][0])});
+  const u=names.filter((n,k)=>names.indexOf(n)===k);
+  const q=n=>{const m=mapUrl(n,d.no);return m.indexOf("query=")>=0?m.split("query=")[1]:encodeURIComponent(n)};
+  $("gmRow").innerHTML=u.length>=2?`<a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&origin=${q(u[0])}&destination=${q(u[u.length-1])}${u.length>2?"&waypoints="+u.slice(1,-1).slice(0,9).map(q).join("%7C"):""}&travelmode=driving">📍 整天路線（Google 地圖）</a>`:"";
+}
+
+function update(now=performance.now()){
+  const d=DAYS[dayIdx];
+  if(!d||!d._teams||$("page").hidden)return;
+  cur=Math.max(d._start,Math.min(d._end,cur));
+  $("clock").textContent=fmt(cur);$("slider").value=cur;
+  const states=d._teams.map(tm=>({tm,st:stateAt(tm,cur)}));
+  $("status").textContent=states.map(({tm,st})=>{
+    const S=tm.stops;let msg;
+    if(cur<S[0].m)msg=`準備出發：${S[0].name}`;
+    else if(st.moving)msg=`🐾 前往 ${S[st.next].short}`;
+    else{const s=S[st.idx];msg=`${s.icon} ${s.name}`}
+    return msg;
+  }).join("｜")+(cur>=d._end-1?"・今天辛苦了！":"");
+  const nowSet=new Set();states.forEach(({tm,st})=>{if(!st.moving&&cur>=tm.stops[0].m)nowSet.add(tm.stops[st.idx])});
+  document.querySelectorAll(".stop[data-i]").forEach(li=>{const s=d.stops[+li.dataset.i];
+    li.classList.toggle("now",nowSet.has(s));li.classList.toggle("done",s.m<=cur&&!nowSet.has(s))});
+  const nowNodes=new Set([...nowSet].map(s=>s.node||null));
+  states.forEach(({tm,st})=>{if(!st.moving&&cur>=tm.stops[0].m)nowNodes.add(tm.refs[st.idx])});
+  pinEls.forEach(({n,mk})=>{const g=mk.getElement();if(!g||!g.firstChild)return;const lp=g.firstChild;
+    const done=n.stops.some(s=>s.m<=cur),nw=nowNodes.has(n);
+    if(lp.classList.contains("now")!==nw){lp.classList.toggle("now",nw);mk.setZIndexOffset(nw?1000:0)}
+    lp.classList.toggle("done",done&&!nw)});
+  pathEls.forEach(p=>{if(!p)return;
+    const found=states.find(x=>x.tm===p.tm);if(!found)return;
+    const st=found.st;
+    let f=0;if(st.idx>p.k)f=1;else if(st.moving&&st.idx===p.k)f=st.f;
+    const key=Math.round(f*200);if(key===p.last)return;p.last=key;
+    if(f<=0){p.walked.setLatLngs([]);return}
+    const pts=[];for(let j=0;j<=32*f;j++)pts.push(LL(bez(p.s,j/32)));pts.push(LL(bez(p.s,f)));
+    p.walked.setLatLngs(pts);
+  });
+  if(!lmap)return;
+  palEls.forEach(({mk,tm,k,n},gi)=>{
+    const tk=cur-k*2.4,s=stateAt(tm,tk),s2=stateAt(tm,tk-0.6);
+    const ang=k/n*Math.PI*2-Math.PI/2+tm.ti*0.6,rad=s.moving?18:46;
+    let bob=0;
+    if(!reduced){bob=s.moving?-Math.abs(Math.sin(now/110+gi*.9))*7:Math.sin(now/420+gi)*1.8}
+    const dir=s.moving&&(s.p.x-s2.p.x)<-1e-7?-1:1;
+    const bp=lmap.latLngToLayerPoint(LL(s.p));
+    mk.setLatLng(lmap.layerPointToLatLng(L.point(bp.x+Math.cos(ang)*rad,bp.y+Math.sin(ang)*rad*0.8-6+bob)));
+    const e=mk.getElement();if(e&&e.firstChild)e.firstChild.style.transform=`scaleX(${dir})`;
+  });
+}
+function dashUpTo(vis,len){let a=[],acc=0;while(acc+11<=vis){a.push(3,8);acc+=11}a.push(Math.min(3,vis-acc),len);return a.join(" ")}
+
+function loop(ts){
+  if(!lastTs)lastTs=ts;const dt=Math.min(100,ts-lastTs);lastTs=ts;
+  if(playing){cur+=dt/1000*12*speed;if(cur>=DAYS[dayIdx]._end){cur=DAYS[dayIdx]._end;pause()}}
+  update(ts);requestAnimationFrame(loop);
+}
+function play(){const d=DAYS[dayIdx];if(cur>=d._end)cur=d._start;playing=true;$("playBtn").textContent="❚❚";$("playBtn").setAttribute("aria-label","暫停")}
+function pause(){playing=false;$("playBtn").textContent="▶";$("playBtn").setAttribute("aria-label","播放")}
+$("playBtn").onclick=()=>{setLive(false);playing?pause():play()};
+$("slider").oninput=e=>{setLive(false);pause();cur=+e.target.value;update()};
+$("speedBtn").onclick=()=>{speed=SPEEDS[(SPEEDS.indexOf(speed)+1)%SPEEDS.length];$("speedBtn").textContent="×"+speed};
+
+let liveTimer=null;
+function setLive(on){
+  live=on;$("liveBtn").setAttribute("aria-pressed",on?"true":"false");
+  clearInterval(liveTimer);
+  if(on){
+    const n=bkkNow();const i=DAYS.findIndex(d=>d.date===n.date);
+    if(i<0){live=false;$("liveBtn").setAttribute("aria-pressed","false");
+      toast(`現在沖繩時間 ${n.md} ${fmt(n.min)}，旅程期間（03/30–04/03）才會即時對照；先按 ▶ 模擬播放吧 ✨`);return}
+    if(i!==dayIdx||posterOn||infoOn)selectDay(i,true);
+    const tick=()=>{cur=bkkNow().min;update()};tick();liveTimer=setInterval(tick,15000);
+    toast(`已對照沖繩時間 ${fmt(cur)}`);
+  }
+}
+$("liveBtn").onclick=()=>setLive(!live);
+
+/* ---------- 角色品牌切換：吉伊卡哇 ⇄ 三麗鷗 ---------- */
+function setBrand(next){
+  brand=next;const isS=brand==="sanrio";
+  PALS=isS?SANRIO_PALS:CHIIKAWA_PALS;
+  $("brandBtn").setAttribute("aria-pressed",isS?"true":"false");
+  $("brandBtn").textContent=isS?"🐾 切換吉伊卡哇版":"🎀 切換三麗鷗版";
+  $("titleMascots").innerHTML=[0,1,2].map(i=>`<svg viewBox="0 0 64 64"><use href="#${PALS[i].id}"/></svg>`).join("");
+  $("tipsMascots").innerHTML=[1,0].map(i=>`<svg viewBox="0 0 64 64"><use href="#${PALS[i].id}"/></svg>`).join("");
+  $("headerSub").textContent=`03/30（二）– 04/03（六）・台北 → 那霸 → 北部・中部・南部 → 台北・6 人同行・${isS?"三麗鷗大明星陪你走完每一天 🎀":"吉伊卡哇與夥伴們陪你走完每一天 ✨"}`;
+  $("posterTitle").innerHTML=isS?`🎀 三麗鷗帶你遊！沖繩五日攻略地圖 <small>(2027年3月30日 - 4月3日)</small> 🎀`:`✨ 吉伊卡哇帶你遊！沖繩五日攻略地圖 <small>(2027年3月30日 - 4月3日)</small> ✨`;
+  $("footerText").innerHTML=footerHtml();
+  try{localStorage.setItem("oki-journal-brand",brand)}catch(e){}
+  if(!DAYS.length)return;
+  renderTabs();renderPoster();
+  if(posterOn)showPoster();else if(infoOn)showInfo();else selectDay(dayIdx,true);
+}
+$("brandBtn").onclick=()=>{
+  const next=brand==="chiikawa"?"sanrio":"chiikawa";
+  if(next==="sanrio"&&document.documentElement.getAttribute("data-theme")!=="pink")setTheme("pink");
+  setBrand(next);
+  toast(next==="sanrio"?"🎀 已切換為三麗鷗（Bonnie・酷洛米・大耳狗・彼安諾・漢頓・酷企鵝）！":"🐾 已切換為吉伊卡哇（吉伊卡哇・小八・烏薩奇・小桃・栗子饅頭・獅薩）！");
+};
+const THEMES=[[null,"☀️ 南國暖陽"],["pink","🌺 扶桑花粉"],["river","🌊 沖繩海藍"]];
+function setTheme(t){
+  const root=document.documentElement;if(t)root.setAttribute("data-theme",t);else root.removeAttribute("data-theme");
+  const i=THEMES.findIndex(x=>x[0]===(t||null));const nx=THEMES[(i+1)%THEMES.length];
+  $("themeBtn").textContent="切換"+nx[1];
+  try{localStorage.setItem("oki-journal-theme",t||"gold")}catch(e){}
+}
+$("themeBtn").onclick=()=>{
+  const cur=document.documentElement.getAttribute("data-theme");
+  const i=THEMES.findIndex(x=>x[0]===(cur||null));const nx=THEMES[(i+1)%THEMES.length];
+  setTheme(nx[0]);toast("已切換為「"+nx[1]+"」配色！");
+};
+let toastT;function toast(t){const e=$("toast");e.textContent=t;e.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove("show"),3800)}
+const footerHtml=()=>`✨ 手帳版・每日地圖底圖為 OpenStreetMap，點位為大致位置、連線為直線示意；出發前請以 Google 地圖連結為準 ✨<br>行程資料即時讀取自 <a href="index.html">index.html</a>，主網頁更新後這頁會自動跟著變；營業時間、價格、預約規則都是第三方資料，出發前請再核對。<br>貼圖角色版權屬原權利人，這頁僅作個人旅遊手帳使用。<br><a class="back" href="index.html">→ 回主網頁</a>`;
+
+/* ---------- 攻略地圖總覽 ---------- */
+const ART={"✈️":"plane","⛩️":"torii","🏨":"hotel","🚐":"bus","🛍️":"bag","🌊":"wave","🌺":"palm","🏯":"castle","🛕":"lantern"};
+const BLOBS=["var(--blob1)","var(--blob2)","var(--blob3)","var(--blob4)"];
+function renderPoster(){
+  const g=$("pgrid");g.innerHTML='<svg class="plinks" id="plinks" aria-hidden="true"></svg>';
+  let palI=0,blobI=0;
+  DAYS.forEach((d,di)=>{
+    const col=document.createElement("div");col.className="pcol";
+    const [mo,da]=d.dstr.split("/");
+    col.innerHTML=`<h3>Day ${d.no} : ${esc(trunc(d.title,13))}<br><span class="sub-date">${+mo}/${+da}（${d.wd}）</span></h3><div class="items"></div>`;
+    const box=col.querySelector(".items");
+    d.stops.filter((s,i)=>d._nodeIdx.includes(i)&&!/出發前往/.test(s.name)).forEach((s,k)=>{
+      const b=document.createElement("button");b.type="button";b.className="pitem";
+      const art=ART[s.icon];
+      const vis=art?`<svg class="art" viewBox="-50 -50 100 100" aria-hidden="true">${DOODLE[art]}</svg>`:`<span class="emo" aria-hidden="true">${s.icon}</span>`;
+      const showPal=(k%2===0);
+      const palSide=(k%3===1)?" left":"";
+      const pal=showPal?`<svg class="pal${palSide}" viewBox="0 0 64 64" aria-hidden="true"><use href="#${PALS[(palI++)%6].id}"/></svg>`:"";
+      const extra=[s.res?"需預約":"",s.nor?"不訂位":""].filter(Boolean).join("・");
+      b.innerHTML=`<span class="vig" style="background:${BLOBS[blobI++%4]}">${vis}${pal}</span>
+        <span class="nm">${esc(trunc(X.clean(s.name)||s.name,9))}</span><span class="tm">(${s.t})</span>
+        ${extra?`<span class="ex">${esc(extra)}</span>`:""}`;
+      b.onclick=()=>{setLive(false);selectDay(di);cur=s.m;update();window.scrollTo({top:$("days").offsetTop-10,behavior:reduced?"auto":"smooth"})};
+      box.appendChild(b);
+    });
+    g.appendChild(col);
+  });
+  const pj=$("pjump");pj.innerHTML=DAYS.map((d,i)=>`<button type="button" data-i="${i}">Day ${d.no}</button>`).join("");
+  const cols=[...g.querySelectorAll(".pcol")],sc=$("pscroll");
+  const mark=()=>{const x=sc.scrollLeft+14;let k=0;cols.forEach((c,i)=>{if(c.offsetLeft<=x+20)k=i});pj.querySelectorAll("button").forEach((b,i)=>b.classList.toggle("on",i===k))};
+  pj.querySelectorAll("button").forEach(b=>b.onclick=()=>{sc.scrollTo({left:cols[+b.dataset.i].offsetLeft-14,behavior:reduced?"auto":"smooth"})});
+  sc.onscroll=()=>requestAnimationFrame(mark);mark();
+  drawLinks();
+}
+function drawLinks(){
+  const g=$("pgrid"),svg=$("plinks");if(!svg||!posterOn)return;
+  const R=g.getBoundingClientRect();
+  if(!R.width||!R.height)return;
+  const cols=[...g.querySelectorAll(".pcol")];
+  let out="";
+  const v=e=>{const r=e.querySelector(".vig").getBoundingClientRect();return {cx:r.left+r.width/2-R.left,top:r.top-R.top,bot:r.bottom-R.top,l:r.left-R.left,r:r.right-R.left,cy:r.top+r.height/2-R.top}};
+  const head=(x,y,a)=>`<path class="plink" style="stroke-dasharray:none" d="M${x-7*Math.cos(a-0.5)} ${y-7*Math.sin(a-0.5)} L${x} ${y} L${x-7*Math.cos(a+0.5)} ${y-7*Math.sin(a+0.5)}"/>`;
+  const star=(x,y)=>`<path class="pstar" transform="translate(${x},${y}) scale(0.75)" d="M0 -8 L2 -2 L8 0 L2 2 L0 8 L-2 2 L-8 0 L-2 -2 Z"/>`;
+  cols.forEach((c,ci)=>{
+    const items=[...c.querySelectorAll(".pitem")].map(v);
+    for(let i=1;i<items.length;i++){const a=items[i-1],b=items[i];
+      const x1=a.cx+(i%2?26:-26),y1=a.bot-4,x2=b.cx+(i%2?-20:20),y2=b.top+2;
+      const cx=(x1+x2)/2+(i%2?40:-40),cy=(y1+y2)/2;
+      out+=`<path class="plink" d="M${x1} ${y1} Q${cx} ${cy} ${x2} ${y2}"/>`+head(x2,y2,Math.atan2(y2-cy,x2-cx))+star(cx+(i%2?10:-10),cy);
+    }
+    if(ci<cols.length-1&&items.length){
+      const a=items[items.length-1],nb=[...cols[ci+1].querySelectorAll(".pitem")].map(v)[0];if(!nb)return;
+      const x1=a.r+4,y1=a.cy,x2=nb.l-4,y2=nb.cy,mx=(x1+x2)/2;
+      out+=`<path class="plink" d="M${x1} ${y1} C${mx+30} ${y1} ${mx-30} ${y2} ${x2} ${y2}"/>`+head(x2,y2,0);
+    }
+  });
+  svg.innerHTML=out;
+}
+if(typeof ResizeObserver!=="undefined")new ResizeObserver(()=>requestAnimationFrame(drawLinks)).observe($("pgrid"));
+window.addEventListener("resize",()=>requestAnimationFrame(drawLinks));
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>requestAnimationFrame(drawLinks));
+
+function showPoster(){
+  pause();setLive(false);hideAll();posterOn=true;
+  $("poster").hidden=false;setAria("tabAll");
+  requestAnimationFrame(drawLinks);
+}
+
+/* ---------- 預約・清單 ---------- */
+function showInfo(){
+  pause();setLive(false);hideAll();infoOn=true;
+  const {RES,D}=X;
+  const flights=D.filter(d=>d.stay&&d.stay[0]&&/^✈/.test(d.stay[0])).map(d=>d.stay[0].replace(/^✈\s*/,"")).join("；");
+  const tipsL=["日本 03/30–04/03 不是國定假日，但是春假，景點和商場人多。","Klook 三日遊每天集合時間不同：03/31 08:20、04/01 08:10（BLUE SEAL 久茂地店），04/02 08:30（縣廳前），遲到視同放棄不退費。","首里城正殿要預約日期時段，2027-01-01 13:00 開賣；收費區成人 1,000 円。","一位吃中式素食：北部團贈送的飯糰沒有素食，要自備午餐；沖繩麵湯頭多用豬骨、柴魚。","沖繩住宿稅 2027-02-01 起開徵（房價 2%），可能要在飯店櫃檯現付。","04/03 是週六，往來客夢的路可能塞車；19:55 的飛機，17:00 前到機場。"];
+  const chk=["護照（確認效期）","Visit Japan Web 入境登錄（出 QR code）","機票／登機資訊："+(flights||"BR112、BR185"),"Klook 三日遊憑證（6 人同一筆訂單）","首里城正殿預約票","日圓現金、可用的信用卡","Suica 等交通 IC 卡（單軌電車可用）","網路：eSIM 或漫遊","行動電源（隨身行李）、防曬、薄外套","素食者自備的午餐與零食"];
+  let saved={};try{saved=JSON.parse(localStorage.getItem("oki-journal-chk")||"{}")}catch(e){}
+  $("info").innerHTML=`<div class="poster-banner"><h2 class="poster-title">📋 預約・提醒・出發前清單</h2></div>
+   <div class="sec"><h3>📌 重點預約</h3><div class="rescards">${RES.map(r=>`<div class="rc"><span class="tag ${r[0]==="極高"?"hot":""}">${esc(r[0])}</span><b>${esc(r[1])}</b><div class="d">${esc(r[2])}</div><div>${esc(r[3])}</div><div class="d">${esc(r[4])}</div></div>`).join("")}</div></div>
+   <div class="sec tipsbig"><h3>💡 貼心提醒 (Tips)</h3><ul>${tipsL.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>
+   <div class="sec"><h3>🧳 出發前清單 <small style="font-weight:500;color:var(--ink2)">（勾選會存在這台裝置）</small></h3><ul class="chk">${chk.map((x,i)=>`<li><label><input type="checkbox" data-c="${i}"${saved[i]?" checked":""}><span>${esc(x)}</span></label></li>`).join("")}</ul></div>
+   ${ALTROWS.length?`<div class="sec"><details><summary style="cursor:pointer;font-weight:700;font-size:16px">🧭 備選地點（原行程表有、目前沒排）</summary><div class="tbl" style="margin-top:8px"><table><thead><tr><th>地點</th><th>位置</th><th>營業時間</th><th>備註</th></tr></thead><tbody>${ALTROWS.map(r=>`<tr>${r.map((c,i)=>`<td>${i?"":"<strong>"}${esc(c)}${i?"":"</strong>"}</td>`).join("")}</tr>`).join("")}</tbody></table></div></details></div>`:""}`;
+  $("info").querySelectorAll("[data-c]").forEach(c=>c.onchange=()=>{saved[c.dataset.c]=c.checked;try{localStorage.setItem("oki-journal-chk",JSON.stringify(saved))}catch(e){}});
+  $("info").hidden=false;setAria("tabInfo");
+}
+
+document.addEventListener("error",e=>{const t=e.target;if(t&&t.classList&&t.classList.contains("pic"))t.style.display="none"},true);
+mq.addEventListener&&mq.addEventListener("change",()=>{if(lmap)lmap.invalidateSize()});
+
+/* ---------- 啟動 ---------- */
+$("footerText").innerHTML=footerHtml();
+tickClock();setInterval(tickClock,1000);
+(function(){
+  let t="gold",b="chiikawa";try{t=localStorage.getItem("oki-journal-theme")||"gold";b=localStorage.getItem("oki-journal-brand")||"chiikawa"}catch(e){}
+  const q=new URLSearchParams(location.search).get("brand");if(q==="sanrio"||q==="chiikawa"){b=q;if(q==="sanrio"&&t==="gold")t="pink"}
+  setTheme(t==="pink"||t==="river"?t:null);
+  if(b==="sanrio")setBrand("sanrio");
+})();
+function init(){
+  DAYS=buildDays();
+  renderTabs();renderPoster();
+  const n0=bkkNow();const ti=DAYS.findIndex(d=>d.date===n0.date);
+  if(ti>=0){selectDay(ti);setLive(true)}else showPoster();
+  if(location.hash==="#info")showInfo();
+  const m=location.hash.match(/^#day(\d)$/);if(m&&DAYS[+m[1]-1])selectDay(+m[1]-1);
+  requestAnimationFrame(loop);
+}
+</script>
+</body>
+</html>
