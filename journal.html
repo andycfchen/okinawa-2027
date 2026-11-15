@@ -616,7 +616,9 @@ function buildDays(){
       if(sum>0)s.travel=sum;
       if(km)s.km=km;
     });
-    const nodeIdx=(()=>{const r=stops.map((s,i)=>i).filter(i=>!stops[i].mv);return r.length>=3?r:stops.map((s,i)=>i)})();
+    /* 入境、集合、解散、機場站這類「移動」項目也要在地圖上有位置，角色才會跟著走；「前往…」「步行…」只是路上，不當點；桃園／台北不放（會把地圖拉到台灣） */
+const isMoveNode=s=>s.mv&&/入境|機場|集合|縣廳前|解散/.test(s.name)&&!/桃園|台北|^步行|^前往|^回飯店/.test(s.name);
+    const nodeIdx=(()=>{const r=stops.map((s,i)=>i).filter(i=>!stops[i].mv||isMoveNode(stops[i]));return r.length>=3?r:stops.map((s,i)=>i)})();
     nodeIdx.forEach(i=>{const s=stops[i],ll=locOf(s.name,d.no,s.m);if(ll)s.p=[ll[1],ll[0]]});
     return {no:d.no,date:"2027-"+d.date.replace("/","-"),dstr:d.date,wd:d.wd,title:d.title,area:AREA[d.no]||d.title,stay:d.stay||[],note:d.note||"",hnote:X.HNOTE[d.no]||"",stops,_nodeIdx:nodeIdx,_src:d};
   });
